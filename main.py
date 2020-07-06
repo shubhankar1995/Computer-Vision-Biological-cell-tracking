@@ -13,12 +13,11 @@ if __name__ == '__main__':
         )
 
     # Get filepaths
-    directory_reader = DirectoryReader(sys.argv[1])
-    filepaths = directory_reader.get_filepaths()
+    filepaths = DirectoryReader(sys.argv[1]).get_filepaths()
 
-    # Test
+    # Test - Please delete these with the real project code
     image = cv.imread(filepaths[0], cv.IMREAD_GRAYSCALE)
-    thresholder = Thresholder(image)
-    thresholded_image = thresholder.threshold()
-    cv.imwrite(thresholded_image)
+    thresholded_image = Thresholder(image).threshold()
+    cv.imwrite('test_result.png', thresholded_image)
+    # Test - end
 
