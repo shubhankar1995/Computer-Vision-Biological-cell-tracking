@@ -1,59 +1,48 @@
 class MinMaxFilter:
-    def __init__(self, image, neigh_size):
+    def __init__(self, image, neighborhood_size):
         self.image = image
-        self.neigh_size = neigh_size
+        self.neighborhood_size = neighborhood_size
     
     def filter(self):
-        invert(invert(self.image) - invert(self.get_background())
+        return MinMaxFilter.invert(
+            MinMaxFilter.invert(self.image) 
+            -
+            MinMaxFilter.invert(self.get_background())
+        )
     
     def get_background(self):
-        a = neighbor_filter(i, N, True)
-        b = neighbor_filter(a, N, False)
-        return b
+        max_filtered = neighbor_filter(True)
+        return neighbor_filter(False)
         
-    def neigh_filter(img, N, is_max):
+    def neighbor_filter(self, is_max):
         # Copy image
-        out = self.image.copy()
+        copied_image = self.image.copy()
 
         # Iterate pixels
-        rows, cols = self.image.shape
-        for (r, c), _ in np.ndenumerate(img):
+        for (r, c), _ in np.ndenumerate(self.image):
             # Get neighborhood max or min
-            neigh = neighborhood_of(self.image, r, c, self.neigh_size, rows,
-                                    cols)
+            neighborhood = get_neighborhood(r, c)
             if is_max:
-                val = neigh.max()
+                value = neighborhood.max()
             else:
-                val = neigh.min()
-            out[r, c] = val
-        return out
+                value = neighborhood.min()
+            copied_image[r, c] = value
+        return copied_image
             
-    def get_neighborhood(self, r, c, N, rows, cols):
+    def get_neighborhood(self, r, c):
+        rows, cols = self.image.shape
         # X coordinates
-        start_x_i = c - N // 2
-        end_x_i = start_x_i + N
+        start_x_i = c - self.neighborhood_size // 2
+        end_x_i = start_x_i + self.neighborhood_size
         start_x = max(0, start_x_i)
         end_x = min(cols, end_x_i)
         # Y coordinates
-        start_y_i = r - N // 2
-        end_y_i = start_y_i + N
+        start_y_i = r - self.neighborhood_size // 2
+        end_y_i = start_y_i + self.neighborhood_size
         start_y = max(0, start_y_i)
         end_y = min(rows, end_y_i)
         # Slice
         return self.image[start_y:end_y, start_x:end_x]
 
-def invert(img):
-    return 255 - img
-
-if __name__ == '__main__':
-    i = cv.imread('Particles.png', cv.IMREAD_GRAYSCALE)
-    b = extract_background(i, 11, 0)
-    cv.imwrite('results/task1/B11.png', b)
-    o = subtract_background(i, b, 0)
-    cv.imwrite('results/task2/O.png', o)
-
-    i = cv.imread('Cells.png', cv.IMREAD_GRAYSCALE)
-    b = extract_background(i, 35, 1)
-    cv.imwrite('results/task3/B35.png', b)
-    o = subtract_background(i, b, 1)
-    cv.imwrite('results/task3/O35.png', o)
+    def invert(image):
+        return 255 - image
