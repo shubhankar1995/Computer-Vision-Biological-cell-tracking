@@ -1,7 +1,8 @@
 import sys
 import cv2 as cv
 
-from directoryreader import DirectoryReader
+from contrast_stretcher import ContrastStretcher
+from directory_reader import DirectoryReader
 from thresholder import Thresholder
 
 if __name__ == '__main__':
@@ -17,7 +18,9 @@ if __name__ == '__main__':
 
     # Test - Please delete these with the real project code
     image = cv.imread(filepaths[0], cv.IMREAD_GRAYSCALE)
-    thresholded_image = Thresholder(image).threshold()
-    cv.imwrite('test_result.png', thresholded_image)
+    stretched_image = ContrastStretcher(image).stretch()
+    cv.imwrite('stretched.png', stretched_image)
+    thresholded_image = Thresholder(stretched_image).threshold()
+    cv.imwrite('thresholded.png', thresholded_image)
     # Test - end
 
