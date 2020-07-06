@@ -1,36 +1,37 @@
+import numpy as np
+import cv2 as cv
+
 class MinMaxFilter:
-    def __init__(self, image, neighborhood_size):
+    def __init__(self, image, neighborhood_size=27, is_min_max=True):
         self.image = image
         self.neighborhood_size = neighborhood_size
+        self.is_min_max = is_min_max
     
     def filter(self):
-        return MinMaxFilter.invert(
-            MinMaxFilter.invert(self.image) 
-            -
-            MinMaxFilter.invert(self.get_background())
-        )
+        background = self.get_background()
+        return cv.subtract(self.image, background)
     
     def get_background(self):
-        max_filtered = neighbor_filter(True)
-        return neighbor_filter(False)
+        min_filtered = self.neighbor_filter(self.image, self.is_min_max)
+        return self.neighbor_filter(min_filtered, not self.is_min_max)
         
-    def neighbor_filter(self, is_max):
+    def neighbor_filter(self, image, is_min):
         # Copy image
-        copied_image = self.image.copy()
+        copied_image = image.copy()
 
         # Iterate pixels
-        for (r, c), _ in np.ndenumerate(self.image):
+        for (r, c), _ in np.ndenumerate(image):
             # Get neighborhood max or min
-            neighborhood = get_neighborhood(r, c)
-            if is_max:
-                value = neighborhood.max()
-            else:
+            neighborhood = self.get_neighborhood(image, r, c)
+            if is_min:
                 value = neighborhood.min()
+            else:
+                value = neighborhood.max()
             copied_image[r, c] = value
         return copied_image
             
-    def get_neighborhood(self, r, c):
-        rows, cols = self.image.shape
+    def get_neighborhood(self, image, r, c):
+        rows, cols = image.shape
         # X coordinates
         start_x_i = c - self.neighborhood_size // 2
         end_x_i = start_x_i + self.neighborhood_size
@@ -42,7 +43,7 @@ class MinMaxFilter:
         start_y = max(0, start_y_i)
         end_y = min(rows, end_y_i)
         # Slice
-        return self.image[start_y:end_y, start_x:end_x]
+        return image[start_y:end_y, start_x:end_x]
 
     def invert(image):
         return 255 - image

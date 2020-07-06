@@ -3,6 +3,7 @@ import cv2 as cv
 
 from contrast_stretcher import ContrastStretcher
 from directory_reader import DirectoryReader
+from min_max_filter import MinMaxFilter
 from thresholder import Thresholder
 
 if __name__ == '__main__':
@@ -20,7 +21,11 @@ if __name__ == '__main__':
     image = cv.imread(filepaths[0], cv.IMREAD_GRAYSCALE)
     stretched_image = ContrastStretcher(image).stretch()
     cv.imwrite('stretched.png', stretched_image)
-    thresholded_image = Thresholder(stretched_image).threshold()
+    filtered_image = MinMaxFilter(stretched_image).filter()
+    cv.imwrite('filtered.png', filtered_image)
+    stretched_filtered_image = ContrastStretcher(filtered_image).stretch()
+    cv.imwrite('stretched_filtered.png', stretched_filtered_image)
+    thresholded_image = Thresholder(stretched_filtered_image).threshold()
     cv.imwrite('thresholded.png', thresholded_image)
     # Test - end
 
