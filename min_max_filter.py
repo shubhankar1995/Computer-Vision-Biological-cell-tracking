@@ -44,6 +44,3 @@ class MinMaxFilter:
         end_y = min(rows, end_y_i)
         # Slice
         return image[start_y:end_y, start_x:end_x]
-
-    def invert(image):
-        return 255 - image
