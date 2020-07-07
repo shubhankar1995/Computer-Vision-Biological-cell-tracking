@@ -9,7 +9,7 @@ class Preprocessor:
         self.image = image
 
     def preprocess(self):
-        stretched_image = ContrastStretcher(image).stretch()
+        stretched_image = ContrastStretcher(self.image).stretch()
         cv.imwrite('stretched.png', stretched_image)    # TODO: remove
         filtered_image = MinMaxFilter(stretched_image).filter()
         cv.imwrite('filtered.png', filtered_image)      # TODO: remove
