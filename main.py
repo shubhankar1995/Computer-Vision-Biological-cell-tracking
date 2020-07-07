@@ -1,3 +1,4 @@
+import cv2 as cv
 import sys
 
 from directory_reader import DirectoryReader
