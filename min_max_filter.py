@@ -2,14 +2,15 @@ import numpy as np
 import cv2 as cv
 
 class MinMaxFilter:
-    def __init__(self, image, neighborhood_size=27, is_min_max=True):
+    def __init__(self, image, neighborhood_size=35, is_min_max=True):
         self.image = image
         self.neighborhood_size = neighborhood_size
         self.is_min_max = is_min_max
     
     def filter(self):
         background = self.get_background()
-        return cv.subtract(self.image, background)
+        cv.imwrite('background.png', background)        # TODO: remove
+        return cv.subtract(self.image, self.get_background())
     
     def get_background(self):
         min_filtered = self.neighbor_filter(self.image, self.is_min_max)

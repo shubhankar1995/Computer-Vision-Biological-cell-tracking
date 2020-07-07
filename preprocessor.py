@@ -9,12 +9,15 @@ class Preprocessor:
         self.image = image
 
     def preprocess(self):
-        stretched_image = ContrastStretcher(self.image).stretch()
-        cv.imwrite('stretched.png', stretched_image)    # TODO: remove
-        filtered_image = MinMaxFilter(stretched_image).filter()
-        cv.imwrite('filtered.png', filtered_image)      # TODO: remove
-        stretched_filtered_image = ContrastStretcher(filtered_image).stretch() 
-        cv.imwrite('stretched_filtered.png', stretched_filtered_image)          # TODO: remove
-        thresholded_image = Thresholder(stretched_filtered_image).threshold() 
-        cv.imwrite('thresholded.png', thresholded_image)                        # TODO: remove
-        return thresholded_image
+        cv.imwrite('original.png', self.image)          # TODO: remove
+        image = ContrastStretcher(self.image).stretch()
+        cv.imwrite('stretched.png', image)              # TODO: remove
+        image = cv.medianBlur(image, 5)
+        cv.imwrite('blurred.png', image)                # TODO: remove
+        image = MinMaxFilter(image).filter()
+        cv.imwrite('filtered.png', image)               # TODO: remove
+        image = ContrastStretcher(image).stretch() 
+        cv.imwrite('stretched_filtered.png', image)     # TODO: remove
+        image = Thresholder(image).threshold() 
+        cv.imwrite('thresholded.png', image)            # TODO: remove
+        return image
