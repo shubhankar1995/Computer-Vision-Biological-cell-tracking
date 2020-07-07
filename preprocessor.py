@@ -5,7 +5,7 @@ from min_max_filter import MinMaxFilter
 from thresholder import Thresholder
 
 class Preprocessor:
-    def __init__(image):
+    def __init__(self, image):
         self.image = image
 
     def preprocess(self):
