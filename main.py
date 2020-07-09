@@ -16,7 +16,7 @@ if __name__ == '__main__':
     filepaths = DirectoryReader(sys.argv[1]).get_filepaths()
 
     # Preprocessing Test - Please delete these with the real project code
-    image = cv.imread(filepaths[0], cv.IMREAD_GRAYSCALE)
+    image = cv.imread(filepaths[0], cv.IMREAD_UNCHANGED)
     preprocessed_image = Preprocessor(image).preprocess()
     # Test - end
 
