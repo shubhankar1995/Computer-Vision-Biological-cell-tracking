@@ -9,7 +9,7 @@ class MinMaxFilter:
     
     def filter(self):
         background = self.get_background()
-        cv.imwrite('background.png', background)        # TODO: remove
+        cv.imwrite('results/background.png', background)        # TODO: remove
         return cv.subtract(self.image, self.get_background())
     
     def get_background(self):
