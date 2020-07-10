@@ -13,18 +13,16 @@ class Preprocessor:
     def preprocess(self):
         image = self.image
         # cv.imwrite('results/original.png', image)          # TODO: remove
-        # image = ContrastStretcher(image).stretch()
+        image = ContrastStretcher(image).stretch()
         # cv.imwrite('results/stretched.png', image)                # TODO: remove
-        # image = cv.medianBlur(image, 5)
+        image = cv.medianBlur(image, 5)
         # cv.imwrite('results/blurred.png', image)              # TODO: remove
-        # image = cv.fastNlMeansDenoising(image)
+        image = cv.fastNlMeansDenoising(image)
         # cv.imwrite('results/denoised.png', image)                # TODO: remove
-        # image = MinMaxFilter(image).filter()
+        image = MinMaxFilter(image).filter()
         # cv.imwrite('results/filtered.png', image)               # TODO: remove
-        # image = ContrastStretcher(image).stretch()
+        image = ContrastStretcher(image).stretch()
         # cv.imwrite('results/post-stretched.png', image)     # TODO: remove
-        # image = Thresholder(image).threshold()
-        # cv.imwrite('results/thresholded.png', image)            # TODO: remove
-        image = Watershed(image).perform()
-        cv.imwrite('results/watershed.png', image)
+        image = Thresholder(image).threshold()
+        cv.imwrite('results/thresholded.png', image)            # TODO: remove
         return image

@@ -1,7 +1,9 @@
+import matplotlib.pyplot as plt 
+import numpy as np
 from scipy import ndimage as ndi
-from skimage.morphology import watershed
+from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
-from uitl.plot import plot_image
+# from uitl.plot import plot_image
 
 class Watershed:
     def __init__(self, image):
@@ -9,12 +11,17 @@ class Watershed:
 
 
     def perform(self):
-        img_array = self.image
-        distance = ndi.distance_transform_edt(img_array)
-        plot_image('water.jpg', distance, 'distance')
-        local_maxi = peak_local_max(distance, indices=False, labels=img_array)
+        distance = ndi.distance_transform_edt(self.image)
+        # Testing the distance transform
+        # plt.imshow(distance)
+        # plt.savefig('results/distance.png')
+        
+        local_maxi = peak_local_max(
+            distance, indices=False, labels=self.image,
+            footprint=np.ones((5, 5))
+        )
         markers = ndi.label(local_maxi)[0]
 
-        ws_labels = watershed(-distance, markers, mask=img_array)
+        ws_labels = watershed(-distance, markers, mask=self.image)
 
         return ws_labels
