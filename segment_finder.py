@@ -9,12 +9,13 @@ class SegmentFinder:
         return [self.find_box(segment) for segment in range(1, label_count)]
     
     def find_box(self, label):
-        indices = np.argwhere(self.labels == label)
-        top_left, bottom_right = indices[0], indices[-1]
+        indices = np.nonzero(self.labels == label)
+        top, bottom = indices[0].min(), indices[0].max()
+        left, right = indices[1].min(), indices[1].max()
         centroid = (
-            (bottom_right[0] + top_left[0]) // 2,
-            (bottom_right[1] + top_left[1]) // 2
+            (top + bottom) // 2,
+            (left + right) // 2
         )
 
-        return top_left, bottom_right, centroid
+        return (top, left), (bottom, right), centroid
     
