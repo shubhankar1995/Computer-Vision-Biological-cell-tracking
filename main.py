@@ -1,6 +1,7 @@
 import cv2 as cv
 import sys
 
+from boxes_drawer import BoxesDrawer
 from directory_reader import DirectoryReader
 import matplotlib.pyplot as plt 
 from preprocessor import Preprocessor
@@ -33,11 +34,11 @@ if __name__ == '__main__':
 
     # Segment Finder Test - Please delete these with the real project code
     segments = SegmentFinder(result).find()
-    for segment in segments:
-        print(segment)
     # Test - end
 
-    
+    # Draw bounding box
+    boxed_image = BoxesDrawer(segments, image).draw()
+    cv.imwrite('results/boxes.png', boxed_image)            # TODO: remove
 
 
 
