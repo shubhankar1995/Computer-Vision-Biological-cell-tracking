@@ -4,6 +4,7 @@ import sys
 from directory_reader import DirectoryReader
 import matplotlib.pyplot as plt 
 from preprocessor import Preprocessor
+from segment_finder import SegmentFinder
 from watershed import Watershed
 
 if __name__ == '__main__':
@@ -29,6 +30,14 @@ if __name__ == '__main__':
     plt.imshow(result)
     plt.savefig('results/watershed.png')
     # Test - end
+
+    # Segment Finder Test - Please delete these with the real project code
+    segments = SegmentFinder(result).find()
+    for segment in segments:
+        print(segment)
+    # Test - end
+
+    
 
 
 
