@@ -1,8 +1,12 @@
 import cv2 as cv
 import sys
 
+from boxes_drawer import BoxesDrawer
 from directory_reader import DirectoryReader
+import matplotlib.pyplot as plt 
 from preprocessor import Preprocessor
+from segment_finder import SegmentFinder
+from watershed import Watershed
 
 if __name__ == '__main__':
     # Check argv
@@ -19,4 +23,22 @@ if __name__ == '__main__':
     image = cv.imread(filepaths[0], cv.IMREAD_GRAYSCALE)
     preprocessed_image = Preprocessor(image).preprocess()
     # Test - end
+
+    # Watershed Test - Please delete these with the real project code
+    watershedder = Watershed(preprocessed_image)
+    result = watershedder.perform()
+    print(result.max())
+    plt.imshow(result)
+    plt.savefig('results/watershed.png')
+    # Test - end
+
+    # Segment Finder Test - Please delete these with the real project code
+    segments = SegmentFinder(result).find()
+    # Test - end
+
+    # Draw bounding box
+    boxed_image = BoxesDrawer(segments, image).draw()
+    cv.imwrite('results/boxes.png', boxed_image)            # TODO: remove
+
+
 
