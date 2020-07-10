@@ -1,4 +1,5 @@
 import cv2 as cv
+from contrast_stretcher import ContrastStretcher
 
 class BoxesDrawer:
     def __init__(self, segments, image):
@@ -6,8 +7,10 @@ class BoxesDrawer:
         self.image = image
     
     def draw(self):
-        color_image = cv.cvtColor(self.image, cv.COLOR_GRAY2BGR)
-        cv.imwrite('results/color.png', color_image)
+        # Convert to color
+        color_image = cv.cvtColor(contrasted_image, cv.COLOR_GRAY2BGR)
+
+        # Draw all
         for segment in self.segments:
             color_image = BoxesDrawer.draw_segment(segment, color_image)
         return color_image
