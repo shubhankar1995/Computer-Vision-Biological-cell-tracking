@@ -8,7 +8,7 @@ class BoxesDrawer:
     
     def draw(self):
         # Convert to color
-        color_image = cv.cvtColor(contrasted_image, cv.COLOR_GRAY2BGR)
+        color_image = cv.cvtColor(self.image, cv.COLOR_GRAY2BGR)
 
         # Draw all
         for segment in self.segments:
