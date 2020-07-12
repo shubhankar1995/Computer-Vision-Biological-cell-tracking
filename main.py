@@ -3,7 +3,7 @@ import sys
 
 from boxes_drawer import BoxesDrawer
 from directory_reader import DirectoryReader
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 from preprocessor import Preprocessor
 from segment_finder import SegmentFinder
 from watershed import Watershed
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # Check argv
     if len(sys.argv) < 2:
         sys.exit(
-            'Please provide the path to images sequence directory.\n'\
+            'Please provide the path to images sequence directory.\n'
             f'Example: python3 {sys.argv[0]} path/to/images'
         )
 
@@ -23,6 +23,7 @@ if __name__ == '__main__':
     image = cv.imread(filepaths[0], cv.IMREAD_GRAYSCALE)
     preprocessed_image = Preprocessor(image).preprocess()
     # Test - end
+    sys.exit()
 
     # Watershed Test - Please delete these with the real project code
     watershedder = Watershed(preprocessed_image)
@@ -39,6 +40,3 @@ if __name__ == '__main__':
     # Draw bounding box
     boxed_image = BoxesDrawer(segments, image).draw()
     cv.imwrite('results/boxes.png', boxed_image)            # TODO: remove
-
-
-
