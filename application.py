@@ -20,14 +20,15 @@ class Application:
         self.button_ax = None
 
     def run(self):
-        self.figure, _ = plt.subplots()  # Get figure
+        self.figure, _ = plt.subplots(num='Cell Tracking')  # Get figure
+
         plt.axis(False)    # Turn off axis
 
         # Process initial image
         image = self.process_current_image()
 
         # Setup plot_image showing initial image
-        self.plot_image = plt.imshow(image, cmap='gray', vmin=0, vmax=255)
+        self.plot_image = plt.imshow(image)
 
         # Initialize button.
         # Note: the instance has to be returned. If doesn't, it won't work
@@ -41,8 +42,8 @@ class Application:
 
     def process_current_image(self):
         # Note: Processing is slow: you can switch the comment to try
-        return cv.imread(self.sequence_files[self.time_point],
-                         cv.IMREAD_GRAYSCALE)
+        return cv.imread(self.file, cv.IMREAD_GRAYSCALE)
+        # return plt.imread(self.sequence_files[self.time_point])
         # return Processor(self.sequence_files[self.time_point]).process()
 
     def init_button(self):
@@ -77,7 +78,6 @@ class Application:
             return
 
         self.time_point += 1    # Increase state
-        print(f'processing {self.time_point}...')
         image = self.process_current_image()    # Process image
         self.plot_image.set_data(image)         # Replace image
         plt.draw()                              # Redraw plot

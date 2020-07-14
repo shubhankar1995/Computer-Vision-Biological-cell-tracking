@@ -20,5 +20,5 @@ class BoxesDrawer:
         top_left, bottom_right, _ = segment
         return cv.rectangle(
             image, tuple(top_left[::-1]), tuple(bottom_right[::-1]),
-            (255, 0, 0), 2
+            (0, 0, 255), 2
         )
