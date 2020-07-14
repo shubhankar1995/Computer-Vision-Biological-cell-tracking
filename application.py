@@ -6,13 +6,18 @@ from processor import Processor
 
 
 class Application:
+    # STATE constant
+    RUNNING = 1
+    PAUSED = 2
+    STOPPED = 3
+
     def __init__(self, sequence_files):
         # Files
         self.sequence_files = sequence_files
         self.file_count = len(sequence_files)
         # States
         self.time_point = 0
-        self.paused = False
+        self.state = Application.RUNNING
         # Plot  objects
         self.figure = None
         self.plot_image = None
@@ -58,31 +63,29 @@ class Application:
         return timer
 
     def click_button(self, event):
-        self.paused = not self.paused   # Toggle state
-        if self.paused:  # Pause
+        print('clicked')
+        if self.state == Application.RUNNING:
+            self.state = Application.PAUSED
             self.button.label.set_text('Continue')
-        else:            # Play
+            plt.draw()
+        else:   # PAUSED or STOPPED
+            if self.state == Application.STOPPED:
+                self.time_point = -1    # Reset to beginning
+            self.state = Application.RUNNING
             self.button.label.set_text('Pause')
-            self.next_step()
-
-        plt.draw()
 
     def next_step(self):
-        if self.paused:  # If paused, next step does nothing
-            return
+        print(self.time_point, self.state)
+        if not (self.state == Application.RUNNING):
+            return  # If not running, does nothing
 
         if self.time_point + 1 == self.file_count:  # At the end of sequence
-            self.paused = True
-            self.button_ax.set_visible(False)   # Remove button
+            self.state = Application.STOPPED
+            self.button.label.set_text('Rerun')
             plt.draw()
             return
 
-        self.time_point += 1    # Increase state
+        self.time_point += 1    # Increase time point
         image = self.process_current_image()    # Process image
         self.plot_image.set_data(image)         # Replace image
         plt.draw()                              # Redraw plot
-
-        print(self.time_point)
-
-        # Start timer
-        self.create_timer().start()  # Start timer
