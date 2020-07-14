@@ -3,13 +3,15 @@ from collections import defaultdict
 import sys 
 from directory_reader import DirectoryReader
 from watershed import Watershed
+from segment_finder import SegmentFinder
 
 class CellTracking():
     def __init__(self):
         self.master_cell_dict = defaultdict(list)
     
     def trackCell(self, image):
-        pass
+        segments = SegmentFinder(image).find()
+        print(segments)
 
     def run(self, image):
         pass
@@ -34,8 +36,10 @@ if __name__ == '__main__':
     # Run
     print(f'There are {len(sequence_files)} images.')
     for i, file in enumerate(sequence_files):
-        if i < 5:                               #TODO: Remove
+        if i < 1:                               #TODO: Remove
             print(f'Processing file {i}...')
+            print(file)
+            image = cv.imread(file, cv.IMREAD_GRAYSCALE)
             image = Watershed(image).perform()
             cellTracking.trackCell(image)
             print(f'File {i} done!')
