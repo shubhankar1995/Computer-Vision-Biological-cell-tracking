@@ -1,21 +1,21 @@
 import numpy as np
 import cv2 as cv
 
+
 class MinMaxFilter:
-    def __init__(self, image, neighborhood_size=35, is_min_max=True):
+    def __init__(self, image, neighborhood_size=25, is_min_max=True):
         self.image = image
         self.neighborhood_size = neighborhood_size
         self.is_min_max = is_min_max
-    
+
     def filter(self):
         background = self.get_background()
-        cv.imwrite('results/background.png', background)        # TODO: remove
         return cv.subtract(self.image, self.get_background())
-    
+
     def get_background(self):
         min_filtered = self.neighbor_filter(self.image, self.is_min_max)
         return self.neighbor_filter(min_filtered, not self.is_min_max)
-        
+
     def neighbor_filter(self, image, is_min):
         # Copy image
         copied_image = image.copy()
@@ -30,7 +30,7 @@ class MinMaxFilter:
                 value = neighborhood.max()
             copied_image[r, c] = value
         return copied_image
-            
+
     def get_neighborhood(self, image, r, c):
         rows, cols = image.shape
         # X coordinates
