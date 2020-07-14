@@ -1,12 +1,8 @@
 import cv2 as cv
 import sys
 
-from boxes_drawer import BoxesDrawer
+from application import Application
 from directory_reader import DirectoryReader
-import matplotlib.pyplot as plt
-from preprocessor import Preprocessor
-from segment_finder import SegmentFinder
-from watershed import Watershed
 
 if __name__ == '__main__':
     # Check argv
@@ -16,27 +12,10 @@ if __name__ == '__main__':
             f'Example: python3 {sys.argv[0]} path/to/images'
         )
 
-    # Get filepaths
-    filepaths = DirectoryReader(sys.argv[1]).get_filepaths()
+    # Get files
+    sequence_files = DirectoryReader(sys.argv[1]).get_sequence_files()
+    if len(sequence_files) == 0:
+        sys.exit(f"There are no files in '{sys.argv[1]}'.")
 
-    # Preprocessing Test - Please delete these with the real project code
-    image = cv.imread(filepaths[0], cv.IMREAD_GRAYSCALE)
-    preprocessed_image = Preprocessor(image).preprocess()
-    # Test - end
-    sys.exit()
-
-    # Watershed Test - Please delete these with the real project code
-    watershedder = Watershed(preprocessed_image)
-    result = watershedder.perform()
-    print(result.max())
-    plt.imshow(result)
-    plt.savefig('results/watershed.png')
-    # Test - end
-
-    # Segment Finder Test - Please delete these with the real project code
-    segments = SegmentFinder(result).find()
-    # Test - end
-
-    # Draw bounding box
-    boxed_image = BoxesDrawer(segments, image).draw()
-    cv.imwrite('results/boxes.png', boxed_image)            # TODO: remove
+    # Run App
+    Application(sequence_files).run()
