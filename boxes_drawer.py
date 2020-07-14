@@ -12,7 +12,7 @@ class BoxesDrawer:
 
         # Draw all
         for segment in self.segments:
-            color_image = self.draw_segment(segment, color_image)
+            color_image = BoxesDrawer.draw_segment(segment, color_image)
         return color_image
         
     def draw_segment(segment, image):
