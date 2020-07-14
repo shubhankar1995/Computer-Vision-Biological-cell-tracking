@@ -42,7 +42,7 @@ class Application:
 
     def process_current_image(self):
         # Note: Processing is slow: you can switch the comment to try
-        return cv.imread(self.file, cv.IMREAD_GRAYSCALE)
+        return cv.imread(self.sequence_files[self.time_point], cv.IMREAD_GRAYSCALE)
         # return plt.imread(self.sequence_files[self.time_point])
         # return Processor(self.sequence_files[self.time_point]).process()
 
