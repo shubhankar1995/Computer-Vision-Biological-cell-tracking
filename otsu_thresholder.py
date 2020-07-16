@@ -7,7 +7,7 @@ class OtsuThresholder:
 
     def threshold(self):
         _, result = cv.threshold(
-            self.image, 0, 130, cv.THRESH_BINARY + cv.THRESH_OTSU
+            self.image, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU
         )
 
         return result

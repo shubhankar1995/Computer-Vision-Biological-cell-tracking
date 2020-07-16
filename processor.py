@@ -9,15 +9,16 @@ from watershed import Watershed
 
 
 class Processor:
-    def __init__(self, file):
+    def __init__(self, file, mode):
         self.file = file
+        self.mode = mode
 
     def process(self):
         # Read image
         image = cv.imread(self.file, cv.IMREAD_GRAYSCALE)
 
         # Preprocess image
-        preprocessed_image = Preprocessor(image).preprocess()
+        preprocessed_image = Preprocessor(image, self.mode).preprocess()
 
         # Segment image
         segmented_image = Watershed(preprocessed_image).perform()
