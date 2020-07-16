@@ -7,7 +7,6 @@ from contrast_stretcher import ContrastStretcher
 from min_max_filter import MinMaxFilter
 from otsu_thresholder import OtsuThresholder
 from thresholder import Thresholder
-from watershed import Watershed
 
 
 class Preprocessor:
@@ -28,8 +27,6 @@ class Preprocessor:
             image = ContrastStretcher(image).stretch()
             image = MinMaxFilter(image).filter()
             image = OtsuThresholder(image).threshold()
-            image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel)
-            image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
         return image
 
 
