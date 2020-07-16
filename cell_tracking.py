@@ -27,9 +27,11 @@ class CellTracking():
         params = {}
         params["n_features"] = 0
         params["n_octave_layers"] = 3
-        params["contrast_threshold"] = 0.03
-        params["edge_threshold"] = 10
+        params["contrast_threshold"] = 0.1
+        params["edge_threshold"] = 60
         params["sigma"] = 1.6
+
+        gray= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
 
         detector = cv.xfeatures2d.SIFT_create(
             nfeatures=params["n_features"],
@@ -39,9 +41,10 @@ class CellTracking():
             sigma=params["sigma"])
 
         kp1, des1 = detector.detectAndCompute(image, None)
-        img1 = cv.drawKeypoints(image, kp1, image)
-        cv.imwrite('1-a.png', img1)
+        img1 = cv.drawKeypoints(gray, kp1, image)
+        cv.imwrite('sift_results/1-c.png', img1)
 
+        # TODO: compare and keep those SIFT keypoints that are closest to the centroids found from SegmentFinder. Do this for all frames and compare keypoints in consequent frames using knnMatch in BFMatcher.
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit(
@@ -62,9 +65,12 @@ if __name__ == '__main__':
         if i < 1:                               #TODO: Remove
             print(f'Processing file {i}...')
             # print(file)
-            image = cv.imread(file, cv.IMREAD_GRAYSCALE)
-            image = Watershed(image).perform()
+            image = cv.imread(file)
+            # image= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
+            # image = Watershed(image).perform()
             # cellTracking.trackCell(image)
+            # backtorgb = cv.cvtColor(image,cv.COLOR_GRAY2RGB)
+            # gray_three = cv.merge([image,image,image])
             cellTracking.siftFeatures(image)
             print(f'File {i} done!')
     
