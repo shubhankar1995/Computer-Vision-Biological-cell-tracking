@@ -29,7 +29,7 @@ class Preprocessor:
             image = MinMaxFilter(image).filter()
             image = OtsuThresholder(image).threshold()
             image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel)
-            # image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
+            image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
         return image
 
 
