@@ -21,11 +21,8 @@ class Processor:
         # Preprocess image
         preprocessed_image = Preprocessor(image, self.mode).preprocess()
 
-        start = time.time()
         # Segment image
         segmented_image = Watershed(preprocessed_image).perform()
-        end = time.time()
-        print(end - start)
 
         # Find segments
         segments = SegmentFinder(segmented_image).find()
