@@ -13,8 +13,9 @@ from boxes_drawer import BoxesDrawer
 
 
 class Watershed:
-    def __init__(self, image):
+    def __init__(self, image, mode):
         self.image = image.copy()
+        self.mode = mode
 
     def perform(self):
         distance = ndi.distance_transform_edt(self.image)
@@ -22,19 +23,20 @@ class Watershed:
         # plt.imshow(distance)
         # plt.savefig('results/distance.png')
 
-        if mode == 1:
+        if self.mode == 1:  # Fluo
             local_maxi = peak_local_max(
-                distance, indices=False, labels=image,
+                distance, indices=False, labels=self.image,
                 threshold_abs=3,
                 footprint=np.ones((9, 9))
             )
-        else:
+        else:               # PhC
             local_maxi = peak_local_max(
-                distance, indices=False, labels=image,
-                footprint=np.ones((5, 5))
+                distance, indices=False, labels=self.image,
+                footprint=np.ones((9, 9))
             )
+        markers = ndi.label(local_maxi)[0]
 
-        ws_labels = watershed(-distance, markers, mask=self.image)
+        return watershed(-distance, markers, mask=self.image)
 
 
 # Used for experiments
@@ -74,7 +76,7 @@ if __name__ == '__main__':
     else:
         local_maxi = peak_local_max(
             distance, indices=False, labels=image,
-            footprint=np.ones((5, 5))
+            footprint=np.ones((9, 9))
         )
 
     markers = ndi.label(local_maxi)[0]

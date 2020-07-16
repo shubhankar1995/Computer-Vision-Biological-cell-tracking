@@ -22,7 +22,7 @@ class Processor:
         preprocessed_image = Preprocessor(image, self.mode).preprocess()
 
         # Segment image
-        segmented_image = Watershed(preprocessed_image).perform()
+        segmented_image = Watershed(preprocessed_image, self.mode).perform()
 
         # Find segments
         segments = SegmentFinder(segmented_image).find()
