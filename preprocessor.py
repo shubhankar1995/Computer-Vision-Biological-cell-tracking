@@ -20,7 +20,7 @@ class Preprocessor:
     def preprocess(self):
         image = self.image
         kernel = np.ones((5, 5), np.uint8)
-        if mode == 1:  # Fluo:
+        if self.mode == 1:  # Fluo:
             image = Thresholder(image, Preprocessor.FLUO_THRESHOLD).threshold()
             image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel)
             image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)

@@ -11,10 +11,12 @@ class Application:
     PAUSED = 2
     STOPPED = 3
 
-    def __init__(self, sequence_files):
+    def __init__(self, sequence_files, mode):
         # Files
         self.sequence_files = sequence_files
         self.file_count = len(sequence_files)
+        # Preprocessing Mode
+        self.mode = mode
         # States
         self.time_point = 0
         self.state = Application.RUNNING
@@ -47,9 +49,11 @@ class Application:
 
     def process_current_image(self):
         # Note: Processing is slow: you can switch the comment to try
-        return cv.imread(self.sequence_files[self.time_point], cv.IMREAD_GRAYSCALE)
+        # return cv.imread(self.sequence_files[self.time_point], cv.IMREAD_GRAYSCALE)
         # return plt.imread(self.sequence_files[self.time_point])
-        # return Processor(self.sequence_files[self.time_point]).process()
+        return Processor(
+            self.sequence_files[self.time_point], self.mode
+        ).process()
 
     def init_button(self):
         button_ax = plt.axes([0.45, 0.01, 0.15, 0.075])  # Button position
