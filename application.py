@@ -27,7 +27,7 @@ class Application:
         self.button_ax = None
 
     def run(self):
-        self.figure, _ = plt.subplots(num='Cell Tracking')  # Get figure
+        self.figure = self.init_figure()  # Get figure
 
         plt.axis(False)    # Turn off axis
 
@@ -46,6 +46,19 @@ class Application:
 
         # Show plot
         plt.show()
+
+    def init_figure(self):
+        # Read first image
+        first_image = cv.imread(self.sequence_files[0], cv.IMREAD_GRAYSCALE)
+        # Detemine figsize
+        height, width = first_image.shape
+        if self.mode == 1:
+            dpi = 120.0
+        else:
+            dpi = 80.0
+        figsize = width / dpi, height / dpi
+
+        return plt.figure(num='Cell Tracking', figsize=figsize)
 
     def process_current_image(self):
         # Note: Processing is slow: you can switch the comment to try
@@ -67,7 +80,6 @@ class Application:
         return timer
 
     def click_button(self, event):
-        print('clicked')
         if self.state == Application.RUNNING:
             self.state = Application.PAUSED
             self.button.label.set_text('Continue')
@@ -79,7 +91,6 @@ class Application:
             self.button.label.set_text('Pause')
 
     def next_step(self):
-        print(self.time_point, self.state)
         if not (self.state == Application.RUNNING):
             return  # If not running, does nothing
 
