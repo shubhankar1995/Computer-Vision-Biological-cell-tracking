@@ -16,8 +16,31 @@ class CellTracking():
     def run(self, image):
         pass
 
+    def initialCellDict(self):
+        segments = self.trackCell()
+        cell_count = len(segments)
+        for i in range(cell_count):
+            self.master_cell_dict[i].append(segments[i][2])
 
 
+    def siftFeatures(self, image):
+        params = {}
+        params["n_features"] = 0
+        params["n_octave_layers"] = 3
+        params["contrast_threshold"] = 0.03
+        params["edge_threshold"] = 10
+        params["sigma"] = 1.6
+
+        detector = cv.xfeatures2d.SIFT_create(
+            nfeatures=params["n_features"],
+            nOctaveLayers=params["n_octave_layers"],
+            contrastThreshold=params["contrast_threshold"],
+            edgeThreshold=params["edge_threshold"],
+            sigma=params["sigma"])
+
+        kp1, des1 = detector.detectAndCompute(image, None)
+        img1 = cv.drawKeypoints(image, kp1, image)
+        cv.imwrite('1-a.png', img1)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -38,9 +61,10 @@ if __name__ == '__main__':
     for i, file in enumerate(sequence_files):
         if i < 1:                               #TODO: Remove
             print(f'Processing file {i}...')
-            print(file)
+            # print(file)
             image = cv.imread(file, cv.IMREAD_GRAYSCALE)
             image = Watershed(image).perform()
-            cellTracking.trackCell(image)
+            # cellTracking.trackCell(image)
+            cellTracking.siftFeatures(image)
             print(f'File {i} done!')
     
