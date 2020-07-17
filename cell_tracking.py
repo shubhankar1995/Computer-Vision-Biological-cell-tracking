@@ -1,6 +1,7 @@
 import cv2 as cv
 from collections import defaultdict
-import sys 
+import sys
+import math
 from directory_reader import DirectoryReader
 from watershed import Watershed
 from segment_finder import SegmentFinder
@@ -31,7 +32,7 @@ class CellTracking():
         params["edge_threshold"] = 60
         params["sigma"] = 1.6
 
-        gray= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
+        # gray= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
 
         detector = cv.xfeatures2d.SIFT_create(
             nfeatures=params["n_features"],
@@ -41,10 +42,50 @@ class CellTracking():
             sigma=params["sigma"])
 
         kp1, des1 = detector.detectAndCompute(image, None)
-        img1 = cv.drawKeypoints(gray, kp1, image)
+        img1 = cv.drawKeypoints(image, kp1, image)
         cv.imwrite('sift_results/1-c.png', img1)
+        return kp1
 
         # TODO: compare and keep those SIFT keypoints that are closest to the centroids found from SegmentFinder. Do this for all frames and compare keypoints in consequent frames using knnMatch in BFMatcher.
+
+    def findClosestCentroid(self, kpt, centroids: list):
+        cent_dict = dict()
+        kpx, kpy = kpt
+        for i, centroid in enumerate(centroids):
+            dist = math.sqrt((kpx - centroid[0])**2 + (kpy - centroid[1])**2)
+            cent_dict[i] = dist
+
+        closest = min(cent_dict, key= cent_dict.get)
+        return closest
+
+    def isKp1CloserToCentroid(self, kpt1, kpt2, centroid):
+        dist1 = math.sqrt((kpt1[0] - centroid[0])**2 + (kpt1[1] - centroid[1])**2)
+        dist2 = math.sqrt((kpt2[0] - centroid[0])**2 + (kpt2[1] - centroid[1])**2)
+
+        return True if dist1 < dist2 else False
+
+
+    def filterKpByCentroids(self, keypoints, segments):
+
+        centroids = [x[2] for x in segments]
+        cent_kp_dict = dict.fromkeys(centroids, None)
+
+        for i, kp in enumerate(keypoints):
+            closest_centroid = self.findClosestCentroid(kp.pt, centroids)
+            cent_val = centroids[closest_centroid]
+            existing_kp = cent_kp_dict.get(cent_val)
+
+            if existing_kp is None:
+                cent_kp_dict[cent_val] = kp
+            else:
+                if self.isKp1CloserToCentroid(kp.pt, existing_kp.pt, cent_val):
+                    cent_kp_dict[cent_val] = kp
+
+        return cent_kp_dict
+
+
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit(
@@ -65,12 +106,15 @@ if __name__ == '__main__':
         if i < 1:                               #TODO: Remove
             print(f'Processing file {i}...')
             # print(file)
-            image = cv.imread(file)
+            image = cv.imread(file, cv.IMREAD_GRAYSCALE)
             # image= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
             # image = Watershed(image).perform()
             # cellTracking.trackCell(image)
             # backtorgb = cv.cvtColor(image,cv.COLOR_GRAY2RGB)
             # gray_three = cv.merge([image,image,image])
-            cellTracking.siftFeatures(image)
+            cur_kp = cellTracking.siftFeatures(image)
+            segmented_image = Watershed(image).perform()
+            segments = SegmentFinder(segmented_image).find()
+            cellTracking.filterKpByCentroids(cur_kp, segments)
             print(f'File {i} done!')
     
