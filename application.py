@@ -25,6 +25,7 @@ class Application:
         self.plot_image = None
         self.button = None
         self.button_ax = None
+        self.counts_text = None
 
     def run(self):
         self.figure = self.init_figure()  # Get figure
@@ -32,10 +33,12 @@ class Application:
         plt.axis(False)    # Turn off axis
 
         # Process initial image
-        image = self.process_current_image()
+        image, segments = self.process_current_image()
 
-        # Setup plot_image showing initial image
+        # Setup plot_image and counts text
         self.plot_image = plt.imshow(image)
+        self.counts_text = plt.text(0, -10,
+                                    Application.produce_counts_text(segments))
 
         # Initialize button.
         # Note: the instance has to be returned. If doesn't, it won't work
@@ -101,6 +104,16 @@ class Application:
             return
 
         self.time_point += 1    # Increase time point
-        image = self.process_current_image()    # Process image
-        self.plot_image.set_data(image)         # Replace image
+        image, segments = self.process_current_image()    # Process image
+        self.update_plot(image, segments)         # Update image
         plt.draw()                              # Redraw plot
+
+    def update_plot(self, image, segments):
+        self.plot_image.set_data(image)
+        self.counts_text.set_text(Application.produce_counts_text(segments))
+
+    def produce_counts_text(segments):
+        return (
+            f'Cell Count: {len(segments)}\n'
+            'Dividing Cell Count: 0'
+        )

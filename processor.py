@@ -28,7 +28,7 @@ class Processor:
         segments = SegmentFinder(segmented_image).find()
 
         # Draw bounding box
-        return BoxesDrawer(segments, image).draw()
+        return BoxesDrawer(segments, image).draw(), segments
 
 
 if __name__ == '__main__':
