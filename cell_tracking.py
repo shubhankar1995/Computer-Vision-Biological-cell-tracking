@@ -6,6 +6,8 @@ from directory_reader import DirectoryReader
 from watershed import Watershed
 from segment_finder import SegmentFinder
 from scipy.spatial import distance
+import numpy as np
+from scipy.optimize import linear_sum_assignment
 
 class CellTracking():
     def __init__(self):
@@ -84,17 +86,24 @@ class CellTracking():
         return cent_kp_dict
 
     def findDistance(self, prevCentroids, nextCentroids):
-        graph = dict()
-        for i, prevCentroid in enumerate(prevCentroids):
-            dist_dict = dict()
-            for j, nextCentroid in enumerate(nextCentroids):
-                dist = distance.euclidean(prevCentroid, nextCentroid)
-                dist_dict[j] = dist
-            graph[i] = dist_dict
-        return graph
+        distance_list = list()
+        for prevCentroid in prevCentroids:
+            # z = list().append(prevCentroid)
+            # dist = distance.cdist(z, nextCentroids, "euclidean")
+            dist = [distance.euclidean(prevCentroid, nextCentroid) for nextCentroid in nextCentroids]
+            distance_list.append(dist)
+
+        return np.array(distance_list)
 
     def getCentroidsFromSegments(self, segments):
         return [x[2] for x in segments]
+
+    def addPositionToPath(self, indices, centroids, trajectoryDict: defaultdict):
+        for k, v in enumerate(indices):
+            trajectoryDict[k].append(centroids[v])
+
+        return  trajectoryDict
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -110,6 +119,7 @@ if __name__ == '__main__':
 
     cellTracking = CellTracking()
     prev = None
+    trajectoryDict = defaultdict(list)
     # Run
     print(f'There are {len(sequence_files)} images.')
     for i, file in enumerate(sequence_files):
@@ -130,6 +140,11 @@ if __name__ == '__main__':
         # cellTracking.filterKpByCentroids(cur_kp, segments)
         if prev is not None:
             graph = cellTracking.findDistance(prev, centroids)
+            row_ind, col_ind = linear_sum_assignment(graph)
+            trajectoryDict = cellTracking.addPositionToPath(col_ind, centroids, trajectoryDict)
+        else:
+            for k,v in enumerate(centroids):
+                trajectoryDict[k].append(v)
         prev = centroids
         print(f'File {i} done!')
-    
+    # print(trajectoryDict)
