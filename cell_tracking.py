@@ -5,6 +5,7 @@ import math
 from directory_reader import DirectoryReader
 from watershed import Watershed
 from segment_finder import SegmentFinder
+from scipy.spatial import distance
 
 class CellTracking():
     def __init__(self):
@@ -64,7 +65,6 @@ class CellTracking():
 
         return True if dist1 < dist2 else False
 
-
     def filterKpByCentroids(self, keypoints, segments):
 
         centroids = [x[2] for x in segments]
@@ -83,8 +83,18 @@ class CellTracking():
 
         return cent_kp_dict
 
+    def findDistance(self, prevCentroids, nextCentroids):
+        graph = dict()
+        for i, prevCentroid in enumerate(prevCentroids):
+            dist_dict = dict()
+            for j, nextCentroid in enumerate(nextCentroids):
+                dist = distance.euclidean(prevCentroid, nextCentroid)
+                dist_dict[j] = dist
+            graph[i] = dist_dict
+        return graph
 
-
+    def getCentroidsFromSegments(self, segments):
+        return [x[2] for x in segments]
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -99,22 +109,27 @@ if __name__ == '__main__':
         sys.exit(f"There are no files in '{sys.argv[1]}'.")
 
     cellTracking = CellTracking()
-
+    prev = None
     # Run
     print(f'There are {len(sequence_files)} images.')
     for i, file in enumerate(sequence_files):
-        if i < 1:                               #TODO: Remove
-            print(f'Processing file {i}...')
-            # print(file)
-            image = cv.imread(file, cv.IMREAD_GRAYSCALE)
-            # image= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
-            # image = Watershed(image).perform()
-            # cellTracking.trackCell(image)
-            # backtorgb = cv.cvtColor(image,cv.COLOR_GRAY2RGB)
-            # gray_three = cv.merge([image,image,image])
-            cur_kp = cellTracking.siftFeatures(image)
-            segmented_image = Watershed(image).perform()
-            segments = SegmentFinder(segmented_image).find()
-            cellTracking.filterKpByCentroids(cur_kp, segments)
-            print(f'File {i} done!')
+
+        print(f'Processing file {i}...')
+        # print(file)
+        image = cv.imread(file, cv.IMREAD_GRAYSCALE)
+        # image= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
+        # image = Watershed(image).perform()
+        # cellTracking.trackCell(image)
+        # backtorgb = cv.cvtColor(image,cv.COLOR_GRAY2RGB)
+        # gray_three = cv.merge([image,image,image])
+        # cur_kp = cellTracking.siftFeatures(image)
+        segmented_image = Watershed(image).perform()
+        segments = SegmentFinder(segmented_image).find()
+        centroids = cellTracking.getCentroidsFromSegments(segments)
+
+        # cellTracking.filterKpByCentroids(cur_kp, segments)
+        if prev is not None:
+            graph = cellTracking.findDistance(prev, centroids)
+        prev = centroids
+        print(f'File {i} done!')
     
