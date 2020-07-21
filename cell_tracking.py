@@ -8,6 +8,7 @@ from segment_finder import SegmentFinder
 from scipy.spatial import distance
 import numpy as np
 from scipy.optimize import linear_sum_assignment
+import matplotlib.pyplot as plt
 
 class CellTracking():
     def __init__(self):
@@ -123,28 +124,44 @@ if __name__ == '__main__':
     # Run
     print(f'There are {len(sequence_files)} images.')
     for i, file in enumerate(sequence_files):
+        if i < 5:
+            print(f'Processing file {i}...')
+            # print(file)
+            image = cv.imread(file, cv.IMREAD_GRAYSCALE)
+            cv.imshow('image', image)
+            # image= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
+            # image = Watershed(image).perform()
+            # cellTracking.trackCell(image)
+            # backtorgb = cv.cvtColor(image,cv.COLOR_GRAY2RGB)
+            # gray_three = cv.merge([image,image,image])
+            # cur_kp = cellTracking.siftFeatures(image)
+            segmented_image = Watershed(image).perform()
+            segments = SegmentFinder(segmented_image).find()
+            centroids = cellTracking.getCentroidsFromSegments(segments)
 
-        print(f'Processing file {i}...')
-        # print(file)
-        image = cv.imread(file, cv.IMREAD_GRAYSCALE)
-        # image= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
-        # image = Watershed(image).perform()
-        # cellTracking.trackCell(image)
-        # backtorgb = cv.cvtColor(image,cv.COLOR_GRAY2RGB)
-        # gray_three = cv.merge([image,image,image])
-        # cur_kp = cellTracking.siftFeatures(image)
-        segmented_image = Watershed(image).perform()
-        segments = SegmentFinder(segmented_image).find()
-        centroids = cellTracking.getCentroidsFromSegments(segments)
+            # cellTracking.filterKpByCentroids(cur_kp, segments)
+            if prev is not None:
+                graph = cellTracking.findDistance(prev, centroids)
+                row_ind, col_ind = linear_sum_assignment(graph)
+                trajectoryDict = cellTracking.addPositionToPath(col_ind, centroids, trajectoryDict)
+            else:
+                for k,v in enumerate(centroids):
+                    trajectoryDict[k].append(v)
+            prev = centroids
+            print(f'File {i} done!')
+    print(trajectoryDict)
+    positions = trajectoryDict.get(0)
+    x, y = list(), list()
+    for pos in positions:
+        y.append(pos[0])
+        x.append(pos[1])
 
-        # cellTracking.filterKpByCentroids(cur_kp, segments)
-        if prev is not None:
-            graph = cellTracking.findDistance(prev, centroids)
-            row_ind, col_ind = linear_sum_assignment(graph)
-            trajectoryDict = cellTracking.addPositionToPath(col_ind, centroids, trajectoryDict)
-        else:
-            for k,v in enumerate(centroids):
-                trajectoryDict[k].append(v)
-        prev = centroids
-        print(f'File {i} done!')
-    # print(trajectoryDict)
+    # x.append(700)
+    # y.append(11000)
+    # plt.plot(testList2, linestyle='-', marker='o')
+    # plt.scatter(testList2, linestyle='-', marker='o')
+    plt.plot(y, x)
+    plt.xlim([0, 1100])
+    plt.ylim([0, 700])
+    plt.show()
+
