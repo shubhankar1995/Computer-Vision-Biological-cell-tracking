@@ -103,7 +103,7 @@ class CellTracking():
         for k, v in enumerate(indices):
             trajectoryDict[k].append(centroids[v])
 
-        return  trajectoryDict
+        return trajectoryDict
 
 
 if __name__ == '__main__':
@@ -156,11 +156,7 @@ if __name__ == '__main__':
     for pos in positions:
         y.append(pos[0])
         x.append(pos[1])
-
-    # x.append(700)
-    # y.append(11000)
-    # plt.plot(testList2, linestyle='-', marker='o')
-    # plt.scatter(testList2, linestyle='-', marker='o')
+        
     w, h = image.shape()
     plt.plot(x, y)
     plt.xlim([0, w])
