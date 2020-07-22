@@ -99,7 +99,7 @@ class Application:
         if event.ydata == None or event.xdata == None:
             return
 
-        print('xdata=%f, ydata=%f' % (event.xdata, event.ydata))
+        # print('xdata=%f, ydata=%f' % (event.xdata, event.ydata))
         cell_id = self.locate_cell(event.ydata, event.xdata)
         self.update_metrics(cell_id)
 
