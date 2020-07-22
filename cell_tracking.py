@@ -124,11 +124,12 @@ if __name__ == '__main__':
     # Run
     print(f'There are {len(sequence_files)} images.')
     for i, file in enumerate(sequence_files):
-        if i < 5:
+        if i < 10:
             print(f'Processing file {i}...')
             # print(file)
             image = cv.imread(file, cv.IMREAD_GRAYSCALE)
-            cv.imshow('image', image)
+            # cv.imshow('image', image)
+            # cv.waitKey(0)
             # image= cv.cvtColor(image,cv.COLOR_BGR2GRAY)
             # image = Watershed(image).perform()
             # cellTracking.trackCell(image)
@@ -160,8 +161,9 @@ if __name__ == '__main__':
     # y.append(11000)
     # plt.plot(testList2, linestyle='-', marker='o')
     # plt.scatter(testList2, linestyle='-', marker='o')
-    plt.plot(y, x)
-    plt.xlim([0, 1100])
-    plt.ylim([0, 700])
+    w, h = image.shape()
+    plt.plot(x, y)
+    plt.xlim([0, w])
+    plt.ylim([h, 0])
     plt.show()
 
