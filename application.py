@@ -42,7 +42,8 @@ class Application:
         # Setup plot_image and counts text
         self.plot_image = plt.imshow(image)
         self.counts_text = plt.text(0, -10, self.produce_counts_text())
-        self.metrics_text = plt.text(250, -10, '')
+        self.clicked_cell_text = plt.text(300, -10, '')
+        self.metrics_text = plt.text(425, -10, '')
 
         # Get subplot for the image
         self.subplot = self.figure.get_axes()[0]
@@ -101,23 +102,29 @@ class Application:
 
         # print('xdata=%f, ydata=%f' % (event.xdata, event.ydata))
         cell_id = self.locate_cell(event.ydata, event.xdata)
-        self.update_metrics(cell_id)
+        self.update_cell_metrics(cell_id)
 
     def locate_cell(self, y, x):
         return CellLocator(self.segments, y, x).locate()
 
-    def update_metrics(self, cell_id):
+    def update_cell_metrics(self, cell_id):
         if cell_id is None:
+            self.clicked_cell_text.set_text('')
             self.metrics_text.set_text('')
             return
 
-        text = (
+        cell_text = (
             f'Cell ID: {cell_id}\n'
+            f'Frame: {self.time_point}'
+        )
+        self.clicked_cell_text.set_text(cell_text)
+
+        metrics_text = (
             'Speed: 0\n'
             'Total Distance: 0\n'
             'Net Distance: 0'
         )
-        self.metrics_text.set_text(text)
+        self.metrics_text.set_text(metrics_text)
 
     def click_button(self, event):
         if self.state == Application.RUNNING:
@@ -152,5 +159,5 @@ class Application:
     def produce_counts_text(self):
         return (
             f'Cell Count: {len(self.segments)}\n'
-            'Dividing Cell Count: 0'
+            'Mitosis Count: 0'
         )
