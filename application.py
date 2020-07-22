@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 
 from processor import Processor
-from celllocator import CellLocator
+from cell_locator import CellLocator
 
 
 class Application:
