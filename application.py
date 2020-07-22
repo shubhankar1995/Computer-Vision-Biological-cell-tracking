@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 
 from processor import Processor
+from celllocator import CellLocator
 
 
 class Application:
@@ -20,12 +21,15 @@ class Application:
         # States
         self.time_point = 0
         self.state = Application.RUNNING
-        # Plot  objects
+        # Plot objects
         self.figure = None
         self.plot_image = None
+        self.subplot = None
         self.button = None
         self.button_ax = None
         self.counts_text = None
+        # Segments
+        self.segments = None
 
     def run(self):
         self.figure = self.init_figure()  # Get figure
@@ -33,12 +37,15 @@ class Application:
         plt.axis(False)    # Turn off axis
 
         # Process initial image
-        image, segments = self.process_current_image()
+        image, self.segments = self.process_current_image()
 
         # Setup plot_image and counts text
         self.plot_image = plt.imshow(image)
-        self.counts_text = plt.text(0, -10,
-                                    Application.produce_counts_text(segments))
+        self.counts_text = plt.text(0, -10, self.produce_counts_text())
+        self.metrics_text = plt.text(250, -10, '')
+
+        # Get subplot for the image
+        self.subplot = self.figure.get_axes()[0]
 
         # Initialize button.
         # Note: the instance has to be returned. If doesn't, it won't work
@@ -46,6 +53,10 @@ class Application:
 
         # Start timer
         self.create_timer().start()
+
+        # Click event handler
+        cid = self.figure.canvas.mpl_connect('button_press_event',
+                                             self.click_image)
 
         # Show plot
         plt.show()
@@ -82,6 +93,32 @@ class Application:
         timer.add_callback(self.next_step)
         return timer
 
+    def click_image(self, event):
+        if not (event.inaxes == self.subplot):
+            return
+        if event.ydata == None or event.xdata == None:
+            return
+
+        print('xdata=%f, ydata=%f' % (event.xdata, event.ydata))
+        cell_id = self.locate_cell(event.ydata, event.xdata)
+        self.update_metrics(cell_id)
+
+    def locate_cell(self, y, x):
+        return CellLocator(self.segments, y, x).locate()
+
+    def update_metrics(self, cell_id):
+        if cell_id is None:
+            self.metrics_text.set_text('')
+            return
+
+        text = (
+            f'Cell ID: {cell_id}\n'
+            'Speed: 0\n'
+            'Total Distance: 0\n'
+            'Net Distance: 0'
+        )
+        self.metrics_text.set_text(text)
+
     def click_button(self, event):
         if self.state == Application.RUNNING:
             self.state = Application.PAUSED
@@ -104,16 +141,16 @@ class Application:
             return
 
         self.time_point += 1    # Increase time point
-        image, segments = self.process_current_image()    # Process image
-        self.update_plot(image, segments)         # Update image
+        image, self.segments = self.process_current_image()    # Process image
+        self.update_plot(image)         # Update image
         plt.draw()                              # Redraw plot
 
-    def update_plot(self, image, segments):
+    def update_plot(self, image):
         self.plot_image.set_data(image)
-        self.counts_text.set_text(Application.produce_counts_text(segments))
+        self.counts_text.set_text(self.produce_counts_text())
 
-    def produce_counts_text(segments):
+    def produce_counts_text(self):
         return (
-            f'Cell Count: {len(segments)}\n'
+            f'Cell Count: {len(self.segments)}\n'
             'Dividing Cell Count: 0'
         )

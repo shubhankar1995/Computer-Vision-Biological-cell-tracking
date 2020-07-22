@@ -28,7 +28,10 @@ class Processor:
         segments = SegmentFinder(segmented_image).find()
 
         # Draw bounding box
-        return BoxesDrawer(segments, image).draw(), segments
+        if self.mode == 1:   # Fluo
+            return BoxesDrawer(segments, preprocessed_image).draw(), segments
+        else:
+            return BoxesDrawer(segments, image).draw(), segments
 
 
 if __name__ == '__main__':
