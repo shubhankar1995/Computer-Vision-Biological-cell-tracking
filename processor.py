@@ -18,15 +18,16 @@ class Processor:
 
         # Preprocess image
         preprocessed_image = Preprocessor(image).preprocess()
+        return preprocessed_image
 
-        # Segment image
-        segmented_image = Watershed(preprocessed_image).perform()
-
-        # Find segments
-        segments = SegmentFinder(segmented_image).find()
-
-        # Draw bounding box
-        return BoxesDrawer(segments, image).draw()
+        # # Segment image
+        # segmented_image = Watershed(image).perform()
+        #
+        # # Find segments
+        # segments = SegmentFinder(segmented_image).find()
+        #
+        # # Draw bounding box
+        # return BoxesDrawer(segments, image).draw()
 
 
 if __name__ == '__main__':
@@ -45,7 +46,8 @@ if __name__ == '__main__':
     # Run
     print(f'There are {len(sequence_files)} images.')
     for i, file in enumerate(sequence_files):
-        print(f'Processing file {i}...')
-        image = Processor(file).process()
-        cv.imwrite(f'result_sequence/{i:04d}.png', image)
-        print(f'File {i} done!')
+        if i > 80:
+            print(f'Processing file {i}...')
+            image = Processor(file).process()
+            cv.imwrite(f'result_sequence/{i:04d}.png', image)
+            print(f'File {i} done!')
