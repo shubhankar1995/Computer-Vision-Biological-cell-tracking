@@ -1,4 +1,5 @@
 from scipy.spatial.distance import euclidean
+from math import inf
 
 
 class CellSnapshot:
@@ -6,11 +7,15 @@ class CellSnapshot:
         self.top_left = top_left
         self.bottom_right = bottom_right
         self.centroid = centroid
-        self.prev_snapshot = None   # Prev snapshot (might be parent)
         self.cell = None    # Reference to the cell
-        self.is_mitosis = False
+        self.prev_snapshot = None   # Prev snapshot (might be parent)
         self.next_snapshots = list()  # Next snapshots (if > 1, they are children)
+        self.is_mitosis = False
+        # Metrics
         self.speed = None
+        self.total_distance = None
+        self.net_distance = None
+        self.confinement = None
 
     def set_prev_snapshot(self, prev_snapshot):
         self.prev_snapshot = prev_snapshot
@@ -55,14 +60,57 @@ class CellSnapshot:
         )
         return self.speed
 
+    def get_total_distance_display(self):
+        if self.get_total_distance() is None:
+            return 'N/A'
+
+        return f'{self.get_total_distance():.2f}'
+
     def get_total_distance(self):
+        if self.total_distance is not None:
+            return self.total_distance
+
         if self.cell is None:
+            return
+
+        self.total_distance = self.cell.mileage
+        return self.total_distance
+
+    def get_net_distance_display(self):
+        if self.get_net_distance() is None:
             return 'N/A'
 
-        return f'{self.cell.mileage:.2f}'
+        return f'{self.get_net_distance():.2f}'
 
-    def calc_net_distance(self):
+    def get_net_distance(self):
+        if self.net_distance is not None:
+            return self.net_distance
+
         if self.cell is None:
+            return
+
+        self.net_distance = euclidean(self.centroid, self.cell.origin)
+        return self.net_distance
+
+    def get_confinement_display(self):
+        if self.get_confinement() is None:
             return 'N/A'
 
-        return f'{euclidean(self.centroid, self.cell.origin):.2f}'
+        if self.get_confinement() == inf:
+            return 'Infinity'
+
+        return f'{self.get_confinement():.2f}'
+
+    def get_confinement(self):
+        if self.confinement is not None:
+            return self.confinement
+
+        if (self.get_total_distance() is None
+                or self.get_net_distance() is None):
+            return
+
+        if self.get_net_distance() == 0:
+            return inf
+
+        self.confinement = self.get_total_distance() / self.get_net_distance()
+        return self.confinement

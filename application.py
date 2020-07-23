@@ -194,7 +194,8 @@ class Application:
 
         metrics_text = (
             f'Speed: {snapshot.get_speed_display()}\n'
-            f'Total Distance: {snapshot.get_total_distance()}\n'
-            f'Net Distance: {snapshot.calc_net_distance()}'
+            f'Total Distance: {snapshot.get_total_distance_display()}\n'
+            f'Net Distance: {snapshot.get_net_distance_display()}\n'
+            f'Confinement Ratio: {snapshot.get_confinement_display()}'
         )
         self.metrics_text.set_text(metrics_text)
