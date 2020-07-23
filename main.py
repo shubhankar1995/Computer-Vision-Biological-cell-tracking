@@ -6,10 +6,12 @@ from directory_reader import DirectoryReader
 
 if __name__ == '__main__':
     # Check argv
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         sys.exit(
-            'Please provide the path to images sequence directory.\n'
-            f'Example: python3 {sys.argv[0]} path/to/images'
+            'Wrong number of arguments.\n'
+            'Parameters: sequence_directory mode\n'
+            f'Example: python3 {sys.argv[0]} path/to/images 1\n'
+            'Modes are 0: DIC, 1: Fluo, 2: PhC'
         )
 
     # Get files
@@ -18,4 +20,4 @@ if __name__ == '__main__':
         sys.exit(f"There are no files in '{sys.argv[1]}'.")
 
     # Run App
-    Application(sequence_files).run()
+    Application(sequence_files, int(sys.argv[2])).run()

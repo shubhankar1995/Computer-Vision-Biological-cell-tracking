@@ -1,5 +1,6 @@
 import cv2 as cv
 import sys
+import time
 
 from boxes_drawer import BoxesDrawer
 from directory_reader import DirectoryReader
@@ -9,8 +10,9 @@ from watershed import Watershed
 
 
 class Processor:
-    def __init__(self, file):
+    def __init__(self, file, mode):
         self.file = file
+        self.mode = mode
 
     def process(self):
         # Read image
@@ -32,10 +34,12 @@ class Processor:
 
 if __name__ == '__main__':
     # Check argv
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         sys.exit(
-            'Please provide the path to images sequence directory.\n'
-            f'Example: python3 {sys.argv[0]} path/to/images'
+            'Wrong number of arguments.\n'
+            'Parameters: sequence_directory mode\n'
+            f'Example: python3 {sys.argv[0]} path/to/images 1\n'
+            'Modes are 0: DIC, 1: Fluo, 2: PhC'
         )
 
     # Get files
@@ -45,9 +49,9 @@ if __name__ == '__main__':
 
     # Run
     print(f'There are {len(sequence_files)} images.')
+    mode = int(sys.argv[2])
     for i, file in enumerate(sequence_files):
-        if i > 80:
-            print(f'Processing file {i}...')
-            image = Processor(file).process()
-            cv.imwrite(f'result_sequence/{i:04d}.png', image)
-            print(f'File {i} done!')
+        print(f'Processing file {i}...')
+        image = Processor(file, mode).process()
+        cv.imwrite(f'result_sequence/{i:04d}.png', image)
+        print(f'File {i} done!')
