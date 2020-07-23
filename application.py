@@ -155,6 +155,12 @@ class Application:
         self.prev_snapshots = self.curr_snapshots
         image, self.curr_snapshots = self.process_current_image()
 
+        for s in self.curr_snapshots:
+            if s.cell is not None:
+                print(s.cell)
+            else:
+                print('Not associated')
+
         self.update_plot(image)         # Update image
         plt.draw()                              # Redraw plot
 

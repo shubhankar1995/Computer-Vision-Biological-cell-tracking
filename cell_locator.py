@@ -9,7 +9,7 @@ class CellLocator:
 
     def find(self):
         label_count = self.labels.max() + 1
-        return [self.find_box(segment) for segment in range(1, label_count)]
+        return [self.find_box(label) for label in range(1, label_count)]
 
     def find_box(self, label):
         indices = np.nonzero(self.labels == label)

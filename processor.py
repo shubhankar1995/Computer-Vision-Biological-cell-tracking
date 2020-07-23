@@ -58,6 +58,7 @@ class Processor:
             associator = CellAssociator(
                 self.curr_snapshots, self.prev_snapshots
             )
+            associator.associate()
 
 
 if __name__ == '__main__':

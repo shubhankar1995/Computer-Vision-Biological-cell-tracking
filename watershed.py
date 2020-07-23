@@ -8,7 +8,7 @@ from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 
 from preprocessor import Preprocessor
-from segment_locator import SegmentLocator
+from cell_locator import CellLocator
 from boxes_drawer import BoxesDrawer
 
 
@@ -84,10 +84,10 @@ if __name__ == '__main__':
     segmented_image = watershed(-distance, markers, mask=image)
 
     # Find segments
-    segments = SegmentLocator(segmented_image).find()
+    snapshots = CellLocator(segmented_image).find()
 
     # Draw bounding box
-    boxed_orig_image = BoxesDrawer(segments, orig_image).draw()
+    boxed_orig_image = BoxesDrawer(snapshots, orig_image).draw()
     cv.imwrite('results/boxed_orig.png', boxed_orig_image)
-    boxed_prep_image = BoxesDrawer(segments, prep_image).draw()
+    boxed_prep_image = BoxesDrawer(snapshots, prep_image).draw()
     cv.imwrite('results/boxed_prep.png', boxed_prep_image)
