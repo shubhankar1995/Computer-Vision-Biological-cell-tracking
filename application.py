@@ -176,7 +176,7 @@ class Application:
                 self.subplot.plot(
                     [p.centroid[1], c.centroid[1]],
                     [p.centroid[0], c.centroid[0]],
-                    linewidth=1, color=cmap(c.cell.id * 10)
+                    linewidth=1, color=cmap(c.cell.id)
                 )
 
     def produce_counts_text(self):

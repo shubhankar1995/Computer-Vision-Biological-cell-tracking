@@ -15,38 +15,34 @@ class CellAssociator:
         self.distance_matrix = None
 
     def associate(self):
-        subject_ids, object_ids = self.perform_linear_assignment()
+        subject_ids, object_ids = self.perform_linear_sum_assignment()
         # Associate based on linear sum assignment (Primary)
         pri_associated_ids = self.assign(subject_ids, object_ids)
 
         # Mitosis or left-outs (Secondary)
-        prim_unassociated_ids = sorted(list(     # Unassociated cells
+        pri_unassociated_ids = sorted(list(     # Unassociated cells
             set(range(len(self.curr_snapshots))) - pri_associated_ids
         ))
-        unas_curr_snapshots = self.curr_snapshots[prim_unassociated_ids]
-        sec_dist_matrix = self.distance_matrix[prim_unassociated_ids, :]
+        sec_dist_matrix = self.distance_matrix[pri_unassociated_ids, :]
         sec_object_ids = np.argmin(sec_dist_matrix, axis=1)  # nearest cell
         sec_associated_ids = self.assign(       # Assign based on argmin
-            prim_unassociated_ids, sec_object_ids
+            pri_unassociated_ids, sec_object_ids
         )
 
-        # Recap all
+        # Initiate new cells for the unassigned
         unassociated_ids = sorted(list(
-            set(prim_unassociated_ids) - sec_associated_ids)
-        )
-        # Create new cell instances
-        for unassociated_id in unassociated_ids:
-            snapshot = self.curr_snapshots[unassociated_id]
-            new_id = len(cell_db.cells)
-            new_cell = Cell(new_id, snapshot.centroid)
-            cell_db.cells.append(new_cell)
-            snapshot.associate(new_cell)
+            set(pri_unassociated_ids) - sec_associated_ids
+        ))
+        self.initiate_new_cells(unassociated_ids)
 
-        print(len(cell_db.cells))
+        # Delete childless cells in prev
+        for snapshot in self.prev_snapshots:
+            if len(snapshot.next_snapshots) == 0:
+                snapshot.cell.delete()
 
         return self.curr_snapshots
 
-    def perform_linear_assignment(self):
+    def perform_linear_sum_assignment(self):
         # Build list of centroids
         curr_centroids = np.array([c.centroid for c in self.curr_snapshots])
         prev_centroids = np.array([c.centroid for c in self.prev_snapshots])
@@ -57,30 +53,41 @@ class CellAssociator:
         # Assign
         return linear_sum_assignment(self.distance_matrix)
 
-    def assign(self, subject_ids, object_ids):
+    def assign(self, curr_ids, prev_ids):
         associated_ids = set()
-        for i, subject_id in enumerate(subject_ids):
-            object_id = object_ids[i]
-            if self.distance_matrix[subject_id, object_id] > 15:
+        for i, curr_id in enumerate(curr_ids):
+            prev_id = prev_ids[i]
+            if self.distance_matrix[curr_id, prev_id] > 20:
                 continue  # Threshold
 
-            subject_snapshot = self.curr_snapshots[subject_id]
-            object_snapshot = self.prev_snapshots[object_id]
-            subject_snapshot.set_prev_snapshot(object_snapshot)
-            object_snapshot.add_next_snapshot(subject_snapshot)
+            curr_snapshot = self.curr_snapshots[curr_id]
+            prev_snapshot = self.prev_snapshots[prev_id]
+            curr_snapshot.set_prev_snapshot(prev_snapshot)
+            prev_snapshot.add_next_snapshot(curr_snapshot)
 
             # Associate cells
-            if len(object_snapshot.next_snapshots) == 1:  # Old cell
-                subject_snapshot.associate(object_snapshot.cell)
+            if len(prev_snapshot.next_snapshots) == 1:  # Old cell
+                curr_snapshot.associate(prev_snapshot.cell)
             else:   # Mitosis
                 new_id = len(cell_db.cells)
-                new_cell = object_snapshot.cell.copy(new_id)
+                new_cell = prev_snapshot.cell.copy(new_id)
                 cell_db.cells.append(new_cell)
-                subject_snapshot.associate(new_cell)
+                curr_snapshot.associate(new_cell)
 
-            associated_ids.add(subject_id)
+            associated_ids.add(curr_id)
 
         return associated_ids
+
+    def initiate_new_cells(self, unassociated_ids):
+        # Create new cell instances
+        for unassociated_id in unassociated_ids:
+            snapshot = self.curr_snapshots[unassociated_id]
+            # Create new cell
+            new_id = len(cell_db.cells)
+            new_cell = Cell(new_id, snapshot.centroid)
+            cell_db.cells.append(new_cell)
+            # Associate
+            snapshot.associate(new_cell)
 
 
 if __name__ == '__main__':
