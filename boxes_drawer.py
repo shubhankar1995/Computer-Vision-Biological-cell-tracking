@@ -13,12 +13,17 @@ class BoxesDrawer:
 
         # Draw all
         for snapshot in self.snapshots:
-            color_image = BoxesDrawer.draw_segment(snapshot, color_image)
+            color_image = BoxesDrawer.draw_box(snapshot, color_image)
         return color_image
 
-    def draw_segment(snapshot, image):
+    def draw_box(snapshot, image):
+        if snapshot.is_mitosis:
+            color = (255, 0, 0)
+        else:
+            color = (0, 255, 0)
+
         return cv.rectangle(
             image, tuple(snapshot.top_left[::-1]),
             tuple(snapshot.bottom_right[::-1]),
-            (255, 0, 0), 2
+            color, 1
         )

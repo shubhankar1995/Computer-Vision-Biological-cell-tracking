@@ -1,4 +1,5 @@
 import cv2 as cv
+import sys
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 
@@ -142,6 +143,8 @@ class Application:
             self.button.label.set_text('Pause')
 
     def next_step(self):
+        # if self.time_point == 1:
+        #     sys.exit()
         if not (self.state == Application.RUNNING):
             return  # If not running, does nothing
 
@@ -156,12 +159,6 @@ class Application:
         self.prev_snapshots = self.curr_snapshots
         image, self.curr_snapshots = self.process_current_image()
 
-        for s in self.curr_snapshots:
-            if s.cell is not None:
-                print(s.cell)
-            else:
-                print('Not associated')
-
         self.update_plot(image)         # Update image
         self.draw_tracks()
         plt.draw()                              # Redraw plot
@@ -173,16 +170,23 @@ class Application:
     def draw_tracks(self):
         cmap = cm.get_cmap('viridis')
         for c in self.curr_snapshots:
-            if c.prev_snapshot is not None and c.cell is not None and c.cell.id == 0:
+            if c.prev_snapshot is not None and c.cell is not None:
                 p = c.prev_snapshot
                 self.subplot.plot(
                     [p.centroid[1], c.centroid[1]],
                     [p.centroid[0], c.centroid[0]],
-                    linewidth=1, color=cmap(c.cell.id * 100)
+                    linewidth=1, color=cmap(c.cell.id * 10)
                 )
 
     def produce_counts_text(self):
         return (
             f'Cell Count: {len(self.curr_snapshots)}\n'
-            'Mitosis Count: 0'
+            f'Mitosis Count: {self.count_mitosis()}'
         )
+
+    def count_mitosis(self):
+        count = 0
+        for snapshot in self.curr_snapshots:
+            if snapshot.is_mitosis:
+                count += 1
+        return count

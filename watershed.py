@@ -32,7 +32,8 @@ class Watershed:
         else:               # PhC
             local_maxi = peak_local_max(
                 distance, indices=False, labels=self.image,
-                footprint=np.ones((9, 9))
+                footprint=np.ones((9, 9)),
+                threshold_abs=2
             )
         markers = ndi.label(local_maxi)[0]
 

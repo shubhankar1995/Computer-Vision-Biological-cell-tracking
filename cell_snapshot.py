@@ -6,6 +6,7 @@ class CellSnapshot:
         self.prev_snapshot = None   # Prev snapshot (might be parent)
         self.cell = None    # Reference to the cell
         self.is_mitosis = False
+        self.next_snapshots = list()
 
     def set_prev_snapshot(self, prev_snapshot):
         self.prev_snapshot = prev_snapshot
@@ -15,3 +16,13 @@ class CellSnapshot:
 
     def confirm_mitosis(self):
         self.is_mitosis = True
+
+    def add_next_snapshot(self, snapshot):  # Also detect mitosis
+        self.next_snapshots.append(snapshot)
+        # Detect mitosis and mark
+        next_snapshots_count = len(self.next_snapshots)
+        if next_snapshots_count == 2:
+            for snapshot in self.next_snapshots:
+                snapshot.confirm_mitosis()
+        elif next_snapshots_count > 2:
+            snapshot.confirm_mitosis()
