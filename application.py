@@ -140,6 +140,7 @@ class Application:
             if self.state == Application.STOPPED:
                 self.prev_snapshots = None
                 self.time_point = -1    # Reset to beginning
+                self.subplot.lines = list()  # Remove all lines
             self.state = Application.RUNNING
             self.button.label.set_text('Pause')
 

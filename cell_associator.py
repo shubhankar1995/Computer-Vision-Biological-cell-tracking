@@ -39,6 +39,7 @@ class CellAssociator:
         for snapshot in self.prev_snapshots:
             if len(snapshot.next_snapshots) == 0:
                 snapshot.cell.delete()
+                cell_db.cells[snapshot.cell.id] = None
 
         return self.curr_snapshots
 
