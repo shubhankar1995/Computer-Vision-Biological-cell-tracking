@@ -1,7 +1,9 @@
 import numpy as np
 
+from cell_snapshot import CellSnapshot
 
-class SegmentLocator:
+
+class CellLocator:
     def __init__(self, labels):
         self.labels = labels
 
@@ -18,4 +20,4 @@ class SegmentLocator:
             (left + right) // 2
         )
 
-        return (top, left), (bottom, right), centroid
+        return CellSnapshot((top, left), (bottom, right), centroid)

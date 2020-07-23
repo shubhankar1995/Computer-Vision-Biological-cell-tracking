@@ -30,8 +30,9 @@ class Application:
         self.counts_text = None
         self.clicked_cell_text = None
         self.metrics_text = None
-        # Segments
-        self.segments = None
+        # Snapshots
+        self.prev_snapshots = None
+        self.curr_snapshots = None
 
     def run(self):
         self.figure = self.init_figure()  # Get figure
@@ -39,7 +40,7 @@ class Application:
         plt.axis(False)    # Turn off axis
 
         # Process initial image
-        image, self.segments = self.process_current_image()
+        image, self.curr_snapshots = self.process_current_image()
 
         # Setup plot_image and counts text
         self.plot_image = plt.imshow(image)
@@ -82,7 +83,7 @@ class Application:
         # return cv.imread(self.sequence_files[self.time_point], cv.IMREAD_GRAYSCALE)
         # return plt.imread(self.sequence_files[self.time_point])
         return Processor(
-            self.sequence_files[self.time_point], self.mode
+            self.sequence_files[self.time_point], self.mode, self.prev_snapshots
         ).process()
 
     def init_button(self):
@@ -107,7 +108,7 @@ class Application:
         self.update_cell_metrics(cell_id)
 
     def identify_cell(self, y, x):
-        return CellIdentifier(self.segments, y, x).locate()
+        return CellIdentifier(self.curr_snapshots, y, x).identify()
 
     def update_cell_metrics(self, cell_id):
         if cell_id is None:
@@ -150,7 +151,10 @@ class Application:
             return
 
         self.time_point += 1    # Increase time point
-        image, self.segments = self.process_current_image()    # Process image
+        # Replace prev snapshots to current, and current to new ones
+        self.prev_snapshots = self.curr_snapshots
+        image, self.curr_snapshots = self.process_current_image()
+
         self.update_plot(image)         # Update image
         plt.draw()                              # Redraw plot
 
@@ -160,6 +164,6 @@ class Application:
 
     def produce_counts_text(self):
         return (
-            f'Cell Count: {len(self.segments)}\n'
+            f'Cell Count: {len(self.curr_snapshots)}\n'
             'Mitosis Count: 0'
         )

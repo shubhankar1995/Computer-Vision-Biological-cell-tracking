@@ -1,18 +1,23 @@
 import cv2 as cv
 import sys
 import time
+import cell_db
 
 from boxes_drawer import BoxesDrawer
+from cell import Cell
+from cell_associator import CellAssociator
 from directory_reader import DirectoryReader
 from preprocessor import Preprocessor
-from segment_locator import SegmentLocator
+from cell_locator import CellLocator
 from watershed import Watershed
 
 
 class Processor:
-    def __init__(self, file, mode):
+    def __init__(self, file, mode, prev_snapshots):
         self.file = file
         self.mode = mode
+        self.prev_snapshots = prev_snapshots
+        self.curr_snapshots = None
 
     def process(self):
         # Read image
@@ -25,7 +30,10 @@ class Processor:
         segmented_image = Watershed(preprocessed_image, self.mode).perform()
 
         # Find segments
-        segments = SegmentLocator(segmented_image).find()
+        self.curr_snapshots = CellLocator(segmented_image).find()
+
+        # Associate
+        self.associate_cells()
 
         # Draw bounding box
         if self.mode == 1:   # Fluo
@@ -33,8 +41,23 @@ class Processor:
         else:
             bottom_layer = image
 
-        boxed_image = BoxesDrawer(segments, bottom_layer).draw()
-        return boxed_image, segments
+        boxed_image = BoxesDrawer(self.curr_snapshots, bottom_layer).draw()
+        return boxed_image, self.curr_snapshots
+
+    def associate_cells(self):
+        if self.prev_snapshots is None:  # Initialize (Frame 0)
+            for snapshot in self.curr_snapshots:
+                new_id = len(cell_db.cells)  # ID of new cell
+                cell = Cell(new_id, snapshot.centroid)  # New Cell
+                cell_db.cells.append(cell)              # Add to DB
+
+                # Associate snapshot with the new cell
+                snapshot.associate(cell)
+        else:
+            # Association happens here
+            associator = CellAssociator(
+                self.curr_snapshots, self.prev_snapshots
+            )
 
 
 if __name__ == '__main__':

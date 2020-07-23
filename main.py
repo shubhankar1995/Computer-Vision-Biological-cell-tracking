@@ -3,6 +3,7 @@ import sys
 
 from application import Application
 from directory_reader import DirectoryReader
+import cell_db
 
 if __name__ == '__main__':
     # Check argv
@@ -18,6 +19,9 @@ if __name__ == '__main__':
     sequence_files = DirectoryReader(sys.argv[1]).get_sequence_files()
     if len(sequence_files) == 0:
         sys.exit(f"There are no files in '{sys.argv[1]}'.")
+
+    # Init cell db
+    cell_db.init()
 
     # Run App
     Application(sequence_files, int(sys.argv[2])).run()
