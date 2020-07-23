@@ -6,7 +6,7 @@ class CellSnapshot:
         self.prev_snapshot = None   # Prev snapshot (might be parent)
         self.cell = None    # Reference to the cell
         self.is_mitosis = False
-        self.next_snapshots = list()
+        self.next_snapshots = list()  # Next snapshots (if > 1, they are children)
 
     def set_prev_snapshot(self, prev_snapshot):
         self.prev_snapshot = prev_snapshot

@@ -5,8 +5,8 @@ class Cell:
         self.mileage = mileage
         self.deleted = False    # Is this a segmentation error?
 
-    def copy(self):
-        return Cell(self.id, self.origin, self.mileage)
+    def copy(self, idx):
+        return Cell(idx, self.origin, self.mileage)
 
     def delete(self):
         self.deleted = True

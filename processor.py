@@ -33,7 +33,7 @@ class Processor:
         self.curr_snapshots = CellLocator(segmented_image).find()
 
         # Associate
-        self.associate_cells()
+        self.curr_snapshots = self.associate_cells()
 
         # Draw bounding box
         if self.mode == 1:   # Fluo
@@ -53,12 +53,13 @@ class Processor:
 
                 # Associate snapshot with the new cell
                 snapshot.associate(cell)
+            return self.curr_snapshots
         else:
             # Association happens here
             associator = CellAssociator(
                 self.curr_snapshots, self.prev_snapshots
             )
-            associator.associate()
+            return associator.associate()
 
 
 if __name__ == '__main__':

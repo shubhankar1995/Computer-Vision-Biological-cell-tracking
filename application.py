@@ -138,6 +138,7 @@ class Application:
             plt.draw()
         else:   # PAUSED or STOPPED
             if self.state == Application.STOPPED:
+                self.prev_snapshots = None
                 self.time_point = -1    # Reset to beginning
             self.state = Application.RUNNING
             self.button.label.set_text('Pause')
