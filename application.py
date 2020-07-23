@@ -28,6 +28,8 @@ class Application:
         self.button = None
         self.button_ax = None
         self.counts_text = None
+        self.clicked_cell_text = None
+        self.metrics_text = None
         # Segments
         self.segments = None
 
