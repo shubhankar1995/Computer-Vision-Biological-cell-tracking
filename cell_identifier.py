@@ -12,6 +12,6 @@ class CellIdentifier:
                 top <= self.y and self.y <= bottom
                 and left <= self.x and self.x <= right
             ):
-                return cell_id
+                return snapshot
 
         return None

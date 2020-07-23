@@ -9,10 +9,11 @@ from scipy.optimize import linear_sum_assignment
 
 
 class CellAssociator:
-    def __init__(self, curr_snapshots, prev_snapshots):
+    def __init__(self, curr_snapshots, prev_snapshots, threshold):
         self.curr_snapshots = curr_snapshots
         self.prev_snapshots = prev_snapshots
         self.distance_matrix = None
+        self.threshold = threshold
 
     def associate(self):
         subject_ids, object_ids = self.perform_linear_sum_assignment()
@@ -38,7 +39,6 @@ class CellAssociator:
         # Delete childless cells in prev
         for snapshot in self.prev_snapshots:
             if len(snapshot.next_snapshots) == 0:
-                snapshot.cell.delete()
                 cell_db.cells[snapshot.cell.id] = None
 
         return self.curr_snapshots
@@ -58,7 +58,7 @@ class CellAssociator:
         associated_ids = set()
         for i, curr_id in enumerate(curr_ids):
             prev_id = prev_ids[i]
-            if self.distance_matrix[curr_id, prev_id] > 20:
+            if self.distance_matrix[curr_id, prev_id] > self.threshold:
                 continue  # Threshold
 
             curr_snapshot = self.curr_snapshots[curr_id]
@@ -74,6 +74,9 @@ class CellAssociator:
                 new_cell = prev_snapshot.cell.copy(new_id)
                 cell_db.cells.append(new_cell)
                 curr_snapshot.associate(new_cell)
+
+            # Update cell mileage (total dist)
+            curr_snapshot.update_cell_mileage()
 
             associated_ids.add(curr_id)
 

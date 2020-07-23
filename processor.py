@@ -55,9 +55,17 @@ class Processor:
                 snapshot.associate(cell)
             return self.curr_snapshots
         else:
+            # Association threshold
+            if self.mode == 0:   # DIC
+                dthreshold = 5
+            elif self.mode == 1:   # Fluo
+                threshold = 20
+            else:  # PhC
+                threshold = 10
+
             # Association happens here
             associator = CellAssociator(
-                self.curr_snapshots, self.prev_snapshots
+                self.curr_snapshots, self.prev_snapshots, threshold
             )
             return associator.associate()
 

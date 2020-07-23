@@ -1,6 +1,7 @@
 import cv2 as cv
 import sys
 import matplotlib.pyplot as plt
+import cell_db
 from matplotlib.widgets import Button
 
 from processor import Processor
@@ -48,7 +49,7 @@ class Application:
         self.plot_image = plt.imshow(image)
         self.counts_text = plt.text(0, -10, self.produce_counts_text())
         self.clicked_cell_text = plt.text(300, -10, '')
-        self.metrics_text = plt.text(425, -10, '')
+        self.metrics_text = plt.text(500, -10, '')
 
         # Get subplot for the image
         self.subplot = self.figure.get_axes()[0]
@@ -88,48 +89,22 @@ class Application:
             self.sequence_files[self.time_point], self.mode, self.prev_snapshots
         ).process()
 
+    def produce_counts_text(self):
+        return (
+            f'Cell Count: {len(self.curr_snapshots)}\n'
+            f'Mitosis Count: {self.count_mitosis()}\n'
+            f'Frame: {self.time_point}'
+        )
+
+    def count_mitosis(self):
+        return sum(1 for snapshot in self.curr_snapshots
+                   if snapshot.is_mitosis)
+
     def init_button(self):
         button_ax = plt.axes([0.45, 0.01, 0.15, 0.075])  # Button position
         button = Button(button_ax, 'Pause')
         button.on_clicked(self.click_button)
         return button, button_ax
-
-    def create_timer(self):
-        timer = self.figure.canvas.new_timer(interval=200)
-        timer.add_callback(self.next_step)
-        return timer
-
-    def click_image(self, event):
-        if not (event.inaxes == self.subplot):
-            return
-        if event.ydata == None or event.xdata == None:
-            return
-
-        # print('xdata=%f, ydata=%f' % (event.xdata, event.ydata))
-        cell_id = self.identify_cell(event.ydata, event.xdata)
-        self.update_cell_metrics(cell_id)
-
-    def identify_cell(self, y, x):
-        return CellIdentifier(self.curr_snapshots, y, x).identify()
-
-    def update_cell_metrics(self, cell_id):
-        if cell_id is None:
-            self.clicked_cell_text.set_text('')
-            self.metrics_text.set_text('')
-            return
-
-        cell_text = (
-            f'Cell ID: {cell_id}\n'
-            f'Frame: {self.time_point}'
-        )
-        self.clicked_cell_text.set_text(cell_text)
-
-        metrics_text = (
-            'Speed: 0\n'
-            'Total Distance: 0\n'
-            'Net Distance: 0'
-        )
-        self.metrics_text.set_text(metrics_text)
 
     def click_button(self, event):
         if self.state == Application.RUNNING:
@@ -138,11 +113,14 @@ class Application:
             plt.draw()
         else:   # PAUSED or STOPPED
             if self.state == Application.STOPPED:
-                self.prev_snapshots = None
                 self.time_point = -1    # Reset to beginning
-                self.subplot.lines = list()  # Remove all lines
             self.state = Application.RUNNING
             self.button.label.set_text('Pause')
+
+    def create_timer(self):
+        timer = self.figure.canvas.new_timer(interval=200)
+        timer.add_callback(self.next_step)
+        return timer
 
     def next_step(self):
         # if self.time_point == 1:
@@ -156,18 +134,27 @@ class Application:
             plt.draw()
             return
 
+        if self.time_point + 1 == 0:    # Rerun
+            self.curr_snapshots = None  # Remove all snapshots
+            cell_db.cells = list()      # Reset all cells
+            self.subplot.lines = list()  # Remove all lines
+            # Reset text
+            self.counts_text.set_text('')
+            self.clicked_cell_text.set_text('')
+            self.metrics_text.set_text('')
+
         self.time_point += 1    # Increase time point
         # Replace prev snapshots to current, and current to new ones
         self.prev_snapshots = self.curr_snapshots
         image, self.curr_snapshots = self.process_current_image()
 
         self.update_plot(image)         # Update image
-        self.draw_tracks()
         plt.draw()                              # Redraw plot
 
     def update_plot(self, image):
         self.plot_image.set_data(image)
         self.counts_text.set_text(self.produce_counts_text())
+        self.draw_tracks()              # Draw tracks for current snapshots
 
     def draw_tracks(self):
         cmap = cm.get_cmap('viridis')
@@ -180,15 +167,34 @@ class Application:
                     linewidth=1, color=cmap(c.cell.id)
                 )
 
-    def produce_counts_text(self):
-        return (
-            f'Cell Count: {len(self.curr_snapshots)}\n'
-            f'Mitosis Count: {self.count_mitosis()}'
-        )
+    def click_image(self, event):
+        if not (event.inaxes == self.subplot):
+            return
+        if event.ydata == None or event.xdata == None:
+            return
 
-    def count_mitosis(self):
-        count = 0
-        for snapshot in self.curr_snapshots:
-            if snapshot.is_mitosis:
-                count += 1
-        return count
+        # print('xdata=%f, ydata=%f' % (event.xdata, event.ydata))
+        snapshot = self.identify_cell(event.ydata, event.xdata)
+        self.update_cell_metrics(snapshot)
+
+    def identify_cell(self, y, x):
+        return CellIdentifier(self.curr_snapshots, y, x).identify()
+
+    def update_cell_metrics(self, snapshot):
+        if snapshot is None:
+            self.clicked_cell_text.set_text('')
+            self.metrics_text.set_text('')
+            return
+
+        cell_text = (
+            f'Cell ID: {snapshot.cell.id}\n'
+            f'Click Frame: {self.time_point}'
+        )
+        self.clicked_cell_text.set_text(cell_text)
+
+        metrics_text = (
+            f'Speed: {snapshot.get_speed_display()}\n'
+            f'Total Distance: {snapshot.get_total_distance()}\n'
+            f'Net Distance: {snapshot.calc_net_distance()}'
+        )
+        self.metrics_text.set_text(metrics_text)
