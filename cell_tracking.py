@@ -4,18 +4,19 @@ import sys
 import math
 from directory_reader import DirectoryReader
 from watershed import Watershed
-from segment_finder import SegmentFinder
+from segment_locator import SegmentLocator
 from scipy.spatial import distance
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 import matplotlib.pyplot as plt
+from shapely.geometry import Polygon # use conda to install the package
 
 class CellTracking():
     def __init__(self):
         self.master_cell_dict = defaultdict(list)
     
     def trackCell(self, image):
-        segments = SegmentFinder(image).find()
+        segments = SegmentLocator(image).find()
         print(segments)
 
     def run(self, image):
@@ -50,7 +51,7 @@ class CellTracking():
         cv.imwrite('sift_results/1-c.png', img1)
         return kp1
 
-        # TODO: compare and keep those SIFT keypoints that are closest to the centroids found from SegmentFinder. Do this for all frames and compare keypoints in consequent frames using knnMatch in BFMatcher.
+        # TODO: compare and keep those SIFT keypoints that are closest to the centroids found from SegmentLocator. Do this for all frames and compare keypoints in consequent frames using knnMatch in BFMatcher.
 
     def findClosestCentroid(self, kpt, centroids: list):
         cent_dict = dict()
@@ -99,6 +100,38 @@ class CellTracking():
     def getCentroidsFromSegments(self, segments):
         return [x[2] for x in segments]
 
+    def getAreaFromSegments(self, segments):
+        return abs((segments[0][0] - segments[1][0]) * (segments[0][1] - segments[1][1]))
+
+    def getDegreeAreaOverlap(self, prevSegments, nextSegments):
+        area_overlap_list = list()
+        for prevSegment in prevSegments:
+            area = []
+            c = prevSegment[2]
+            h = abs(prevSegment[0][0] - prevSegment[1][0])
+            w = abs(prevSegment[0][1] - prevSegment[1][1])
+            area_u = self.getAreaFromSegments(prevSegment)
+            polygon_u = Polygon([(c[1] - w/2 , c[0] + h/2), (c[1] + w/2, c[0] + h/2), (c[1] + w/2, c[0] - h/2), (c[1] - w/2, c[0] - h/2)])
+            for nextSegment in nextSegments:
+                c = nextSegment[2]
+                h = abs(nextSegment[0][0] - nextSegment[1][0])
+                w = abs(nextSegment[0][1] - nextSegment[1][1])
+                area_v = self.getAreaFromSegments(nextSegment)
+                polygon_v = Polygon([(c[1] - w/2 , c[0] + h/2), (c[1] + w/2, c[0] + h/2), (c[1] + w/2, c[0] - h/2), (c[1] - w/2, c[0] - h/2)])
+                intersection = polygon_u.intersection(polygon_v)
+                if area_u == 0 or area_v == 0:
+                    area.append(0)
+                else:
+                    area.append(1 - (intersection.area**2 / (area_u*area_v)))
+            area_overlap_list.append(area)
+        return np.array(area_overlap_list)
+
+    def getTotalCost(self, distances, areas):
+        a1 = 1
+        a2 = 1
+        totalCost = distances*a1 + areas*a2
+        return totalCost
+
     def addPositionToPath(self, indices, centroids, trajectoryDict: defaultdict):
         for k, v in enumerate(indices):
             trajectoryDict[k].append(centroids[v])
@@ -136,19 +169,25 @@ if __name__ == '__main__':
             # backtorgb = cv.cvtColor(image,cv.COLOR_GRAY2RGB)
             # gray_three = cv.merge([image,image,image])
             # cur_kp = cellTracking.siftFeatures(image)
-            segmented_image = Watershed(image).perform()
-            segments = SegmentFinder(segmented_image).find()
+            segmented_image = Watershed(image,1).perform()
+            segments = SegmentLocator(segmented_image).find()
             centroids = cellTracking.getCentroidsFromSegments(segments)
+            
 
             # cellTracking.filterKpByCentroids(cur_kp, segments)
             if prev is not None:
                 graph = cellTracking.findDistance(prev, centroids)
-                row_ind, col_ind = linear_sum_assignment(graph)
+                degreeOverlap = cellTracking.getDegreeAreaOverlap(prevSegment, segments)
+                heuristic = cellTracking.getTotalCost(graph, degreeOverlap)
+                if i == 7:
+                    print(heuristic)
+                row_ind, col_ind = linear_sum_assignment(heuristic)
                 trajectoryDict = cellTracking.addPositionToPath(col_ind, centroids, trajectoryDict)
             else:
                 for k,v in enumerate(centroids):
                     trajectoryDict[k].append(v)
             prev = centroids
+            prevSegment = segments
             print(f'File {i} done!')
     print(trajectoryDict)
     positions = trajectoryDict.get(0)
@@ -157,7 +196,7 @@ if __name__ == '__main__':
         y.append(pos[0])
         x.append(pos[1])
         
-    w, h = image.shape()
+    w, h = image.shape
     plt.plot(x, y)
     plt.xlim([0, w])
     plt.ylim([h, 0])
