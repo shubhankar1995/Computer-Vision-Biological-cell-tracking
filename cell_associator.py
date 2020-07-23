@@ -14,8 +14,11 @@ class CellAssociator:
     def associate(self):
         subject_ids, assigned_ids = self.assign()
         for i, subject_id in enumerate(subject_ids):
+            subject_snapshot = self.curr_snapshots[subject_id]
             assigned_snapshot = self.prev_snapshots[assigned_ids[i]]
-            self.curr_snapshots[subject_id].associate(assigned_snapshot.cell)
+
+            subject_snapshot.set_prev_snapshot(assigned_snapshot)
+            subject_snapshot.associate(assigned_snapshot.cell)
 
     def assign(self):
         # Build list of centroids

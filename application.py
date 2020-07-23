@@ -4,6 +4,7 @@ from matplotlib.widgets import Button
 
 from processor import Processor
 from cell_identifier import CellIdentifier
+from matplotlib import cm
 
 
 class Application:
@@ -162,11 +163,23 @@ class Application:
                 print('Not associated')
 
         self.update_plot(image)         # Update image
+        self.draw_tracks()
         plt.draw()                              # Redraw plot
 
     def update_plot(self, image):
         self.plot_image.set_data(image)
         self.counts_text.set_text(self.produce_counts_text())
+
+    def draw_tracks(self):
+        cmap = cm.get_cmap('viridis')
+        for c in self.curr_snapshots:
+            if c.prev_snapshot is not None and c.cell is not None and c.cell.id == 0:
+                p = c.prev_snapshot
+                self.subplot.plot(
+                    [p.centroid[1], c.centroid[1]],
+                    [p.centroid[0], c.centroid[0]],
+                    linewidth=1, color=cmap(c.cell.id * 100)
+                )
 
     def produce_counts_text(self):
         return (
