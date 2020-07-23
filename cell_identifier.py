@@ -1,4 +1,4 @@
-class CellLocator:
+class CellIdentifier:
     def __init__(self, segments, y, x):
         self.segments = segments
         self.y = y

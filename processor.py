@@ -5,7 +5,7 @@ import time
 from boxes_drawer import BoxesDrawer
 from directory_reader import DirectoryReader
 from preprocessor import Preprocessor
-from segment_finder import SegmentFinder
+from segment_locator import SegmentLocator
 from watershed import Watershed
 
 
@@ -25,7 +25,7 @@ class Processor:
         segmented_image = Watershed(preprocessed_image, self.mode).perform()
 
         # Find segments
-        segments = SegmentFinder(segmented_image).find()
+        segments = SegmentLocator(segmented_image).find()
 
         # Draw bounding box
         if self.mode == 1:   # Fluo
