@@ -29,9 +29,12 @@ class Processor:
 
         # Draw bounding box
         if self.mode == 1:   # Fluo
-            return BoxesDrawer(segments, preprocessed_image).draw(), segments
+            bottom_layer = preprocessed_image
         else:
-            return BoxesDrawer(segments, image).draw(), segments
+            bottom_layer = image
+
+        boxed_image = BoxesDrawer(segments, bottom_layer).draw()
+        return boxed_image, segments
 
 
 if __name__ == '__main__':
