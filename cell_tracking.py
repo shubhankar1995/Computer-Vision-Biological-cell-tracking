@@ -10,6 +10,7 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon # use conda to install the package
+from scipy.spatial.distance import cdist
 
 class CellTracking():
     def __init__(self):
@@ -88,14 +89,14 @@ class CellTracking():
         return cent_kp_dict
 
     def findDistance(self, prevCentroids, nextCentroids):
-        distance_list = list()
-        for prevCentroid in prevCentroids:
-            # z = list().append(prevCentroid)
-            # dist = distance.cdist(z, nextCentroids, "euclidean")
-            dist = [distance.euclidean(prevCentroid, nextCentroid) for nextCentroid in nextCentroids]
-            distance_list.append(dist)
-
-        return np.array(distance_list)
+        # distance_list = list()
+        # for prevCentroid in prevCentroids:
+        #     # z = list().append(prevCentroid)
+        #     # dist = distance.cdist(z, nextCentroids, "euclidean")
+        #     dist = [distance.euclidean(prevCentroid, nextCentroid) for nextCentroid in nextCentroids]
+        #     distance_list.append(dist)
+        return cdist(prevCentroids, nextCentroids)
+        # return np.array(distance_list)
 
     def getCentroidsFromSegments(self, segments):
         return [x[2] for x in segments]
@@ -127,8 +128,8 @@ class CellTracking():
         return np.array(area_overlap_list)
 
     def getTotalCost(self, distances, areas):
-        a1 = 1
-        a2 = 1
+        a1 = 0.2/((700**2 + 1100**2)**(0.5))
+        a2 = 0.2
         totalCost = distances*a1 + areas*a2
         return totalCost
 
@@ -179,8 +180,6 @@ if __name__ == '__main__':
                 graph = cellTracking.findDistance(prev, centroids)
                 degreeOverlap = cellTracking.getDegreeAreaOverlap(prevSegment, segments)
                 heuristic = cellTracking.getTotalCost(graph, degreeOverlap)
-                if i == 7:
-                    print(heuristic)
                 row_ind, col_ind = linear_sum_assignment(heuristic)
                 trajectoryDict = cellTracking.addPositionToPath(col_ind, centroids, trajectoryDict)
             else:
@@ -189,6 +188,7 @@ if __name__ == '__main__':
             prev = centroids
             prevSegment = segments
             print(f'File {i} done!')
+
     print(trajectoryDict)
     positions = trajectoryDict.get(0)
     x, y = list(), list()
@@ -196,9 +196,12 @@ if __name__ == '__main__':
         y.append(pos[0])
         x.append(pos[1])
         
-    w, h = image.shape
+    h, w = image.shape
     plt.plot(x, y)
     plt.xlim([0, w])
     plt.ylim([h, 0])
+
+    for i in range(len(x)):
+        plt.annotate(i, (x[i], y[i]))
     plt.show()
 
