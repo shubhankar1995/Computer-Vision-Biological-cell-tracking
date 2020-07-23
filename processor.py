@@ -5,7 +5,7 @@ import time
 from boxes_drawer import BoxesDrawer
 from directory_reader import DirectoryReader
 from preprocessor import Preprocessor
-from segment_finder import SegmentFinder
+from segment_locator import SegmentLocator
 from watershed import Watershed
 
 
@@ -19,17 +19,19 @@ class Processor:
         image = cv.imread(self.file, cv.IMREAD_GRAYSCALE)
 
         # Preprocess image
-        preprocessed_image = Preprocessor(image).preprocess()
-        return preprocessed_image
+        preprocessed_image = Preprocessor(image, self.mode).preprocess()
 
-        # # Segment image
-        # segmented_image = Watershed(image).perform()
-        #
-        # # Find segments
-        # segments = SegmentFinder(segmented_image).find()
-        #
-        # # Draw bounding box
-        # return BoxesDrawer(segments, image).draw()
+        # Segment image
+        segmented_image = Watershed(preprocessed_image, self.mode).perform()
+
+        # Find segments
+        segments = SegmentLocator(segmented_image).find()
+
+        # Draw bounding box
+        if self.mode == 1:   # Fluo
+            return BoxesDrawer(segments, preprocessed_image).draw(), segments
+        else:
+            return BoxesDrawer(segments, image).draw(), segments
 
 
 if __name__ == '__main__':

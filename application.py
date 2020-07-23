@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 
 from processor import Processor
-from cell_locator import CellLocator
+from cell_identifier import CellIdentifier
 
 
 class Application:
@@ -101,11 +101,11 @@ class Application:
             return
 
         # print('xdata=%f, ydata=%f' % (event.xdata, event.ydata))
-        cell_id = self.locate_cell(event.ydata, event.xdata)
+        cell_id = self.identify_cell(event.ydata, event.xdata)
         self.update_cell_metrics(cell_id)
 
-    def locate_cell(self, y, x):
-        return CellLocator(self.segments, y, x).locate()
+    def identify_cell(self, y, x):
+        return CellIdentifier(self.segments, y, x).locate()
 
     def update_cell_metrics(self, cell_id):
         if cell_id is None:
