@@ -1,6 +1,7 @@
 import sys
 import numpy as np
-import cell_db
+import math
+import global_vars
 
 from cell import Cell
 from directory_reader import DirectoryReader
@@ -40,7 +41,7 @@ class CellAssociator:
         # Delete childless cells in prev
         for snapshot in self.prev_snapshots:
             if len(snapshot.next_snapshots) == 0:
-                cell_db.cells[snapshot.cell.id] = None
+                global_vars.cells[snapshot.cell.id] = None
 
     def perform_linear_sum_assignment(self):
         # Build list of centroids
@@ -48,7 +49,10 @@ class CellAssociator:
         prev_centroids = np.array([c.centroid for c in self.prev_snapshots])
 
         # Calc distance matrix
-        self.distance_matrix = cdist(curr_centroids, prev_centroids)
+        self.distance_matrix = (
+            cdist(curr_centroids, prev_centroids) /
+            global_vars.image_diag
+        )
 
         # Assign
         return linear_sum_assignment(self.distance_matrix)
@@ -69,9 +73,9 @@ class CellAssociator:
             if len(prev_snapshot.next_snapshots) == 1:  # Old cell
                 curr_snapshot.associate(prev_snapshot.cell)
             else:   # Mitosis
-                new_id = len(cell_db.cells)
+                new_id = len(global_vars.cells)
                 new_cell = prev_snapshot.cell.copy(new_id)
-                cell_db.cells.append(new_cell)
+                global_vars.cells.append(new_cell)
                 curr_snapshot.associate(new_cell)
 
             # Update cell mileage (total dist)
@@ -86,9 +90,9 @@ class CellAssociator:
         for unassociated_id in unassociated_ids:
             snapshot = self.curr_snapshots[unassociated_id]
             # Create new cell
-            new_id = len(cell_db.cells)
+            new_id = len(global_vars.cells)
             new_cell = Cell(new_id, snapshot.centroid)
-            cell_db.cells.append(new_cell)
+            global_vars.cells.append(new_cell)
             # Associate
             snapshot.associate(new_cell)
 

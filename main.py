@@ -3,7 +3,7 @@ import sys
 
 from application import Application
 from directory_reader import DirectoryReader
-import cell_db
+import global_vars
 
 if __name__ == '__main__':
     # Check argv
@@ -26,8 +26,8 @@ if __name__ == '__main__':
     if len(sequence_files) == 0:
         sys.exit(f"There are no files in '{sys.argv[1]}'.")
 
-    # Init cell db
-    cell_db.init()
+    # Init global vars
+    global_vars.init()
 
     # Run App
     Application(sequence_files, int(sys.argv[2]), segment_mode).run()

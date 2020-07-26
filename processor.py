@@ -1,7 +1,8 @@
 import cv2 as cv
+import math
 import sys
 import time
-import cell_db
+import global_vars
 
 from boxes_drawer import BoxesDrawer
 from cell import Cell
@@ -18,12 +19,20 @@ class Processor:
         self.file = file
         self.mode = mode
         self.segment_mode = segment_mode
+        self.image_size = None
         self.prev_snapshots = prev_snapshots
         self.curr_snapshots = None
 
     def process(self):
         # Read image
         image = cv.imread(self.file, cv.IMREAD_GRAYSCALE)
+
+        # Save global information
+        if global_vars.image_size is None:
+            global_vars.image_size = image.shape[1::-1]
+        if global_vars.image_diag is None:
+            global_vars.image_diag = math.hypot(*global_vars.image_size)
+            print(global_vars.image_diag)
 
         # Preprocess image
         preprocessed_image = Preprocessor(image, self.mode).preprocess()
@@ -57,9 +66,9 @@ class Processor:
     def associate_cells(self):
         if self.prev_snapshots is None:  # Initialize (Frame 0)
             for snapshot in self.curr_snapshots:
-                new_id = len(cell_db.cells)  # ID of new cell
+                new_id = len(global_vars.cells)  # ID of new cell
                 cell = Cell(new_id, snapshot.centroid)  # New Cell
-                cell_db.cells.append(cell)              # Add to DB
+                global_vars.cells.append(cell)              # Add to DB
 
                 # Associate snapshot with the new cell
                 snapshot.associate(cell)
@@ -67,11 +76,11 @@ class Processor:
         else:
             # Association threshold
             if self.mode == 0:   # DIC
-                dthreshold = 5
+                threshold = 0.1
             elif self.mode == 1:   # Fluo
-                threshold = 30
+                threshold = 0.025
             else:  # PhC
-                threshold = 10
+                threshold = 0.01
 
             # Association happens here
             associator = CellAssociator(

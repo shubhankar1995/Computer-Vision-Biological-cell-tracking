@@ -1,11 +1,11 @@
 import numpy as np
+import global_vars
 
 
 class TrackDrawer:
-    def __init__(self, subplot, snapshots, image_size):
+    def __init__(self, subplot, snapshots):
         self.subplot = subplot
         self.snapshots = snapshots
-        self.image_size = image_size
 
     def draw(self):
         for c in self.snapshots:
@@ -24,4 +24,4 @@ class TrackDrawer:
                 )
 
     def cleanse(self, coor, axis):  # axis, 0 = x, 1 = y
-        return min(self.image_size[axis] - 1, max(0, np.intp(coor)))
+        return min(global_vars.image_size[axis] - 1, max(0, np.intp(coor)))

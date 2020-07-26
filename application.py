@@ -1,7 +1,7 @@
 import cv2 as cv
 import sys
 import matplotlib.pyplot as plt
-import cell_db
+import global_vars
 from matplotlib.widgets import Button
 
 from processor import Processor
@@ -26,7 +26,6 @@ class Application:
         self.time_point = 0
         self.state = Application.RUNNING
         # Plot objects
-        self.image_size = None
         self.figure = None
         self.plot_image = None
         self.subplot = None
@@ -46,7 +45,6 @@ class Application:
 
         # Process initial image
         image, self.curr_snapshots = self.process_current_image()
-        self.image_size = image.shape[1::-1]  # Remember the image size (w, h)
 
         # Setup plot_image and counts text
         self.plot_image = plt.imshow(image)
@@ -140,7 +138,7 @@ class Application:
 
         if self.time_point + 1 == 0:    # Rerun
             self.curr_snapshots = None  # Remove all snapshots
-            cell_db.cells = list()      # Reset all cells
+            global_vars.cells = list()      # Reset all cells
             self.subplot.lines = list()  # Remove all lines
             # Reset text
             self.counts_text.set_text('')
@@ -161,7 +159,7 @@ class Application:
         self.draw_tracks()              # Draw tracks for current snapshots
 
     def draw_tracks(self):
-        TrackDrawer(self.subplot, self.curr_snapshots, self.image_size).draw()
+        TrackDrawer(self.subplot, self.curr_snapshots).draw()
 
     def click_image(self, event):
         if not (event.inaxes == self.subplot):
