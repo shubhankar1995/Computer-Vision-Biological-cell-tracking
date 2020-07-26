@@ -49,8 +49,8 @@ class Application:
         # Setup plot_image and counts text
         self.plot_image = plt.imshow(image)
         self.counts_text = plt.text(0, -10, self.produce_counts_text())
-        self.clicked_cell_text = plt.text(300, -10, '')
-        self.metrics_text = plt.text(500, -10, '')
+        self.clicked_cell_text = plt.text(200, -10, '')
+        self.metrics_text = plt.text(400, -10, '')
 
         # Get subplot for the image
         self.subplot = self.figure.get_axes()[0]
