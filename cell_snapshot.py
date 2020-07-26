@@ -1,12 +1,17 @@
+import cv2 as cv
+import numpy as np
 from scipy.spatial.distance import euclidean
 from math import inf
 
 
 class CellSnapshot:
-    def __init__(self, top_left, bottom_right, centroid):
-        self.top_left = top_left
-        self.bottom_right = bottom_right
+    def __init__(self, centroid, size, angle):
+        # Shape
         self.centroid = centroid
+        self.size = size
+        self.angle = angle
+        self.bounding_points = None
+        # Tracking
         self.cell = None    # Reference to the cell
         self.prev_snapshot = None   # Prev snapshot (might be parent)
         self.next_snapshots = list()  # Next snapshots (if > 1, they are children)
@@ -16,6 +21,15 @@ class CellSnapshot:
         self.total_distance = None
         self.net_distance = None
         self.confinement = None
+
+    def get_bounding_points(self):
+        if self.bounding_points is not None:
+            return self.bounding_points
+
+        self.bounding_points = np.intp(
+            cv.boxPoints((self.centroid, self.size, self.angle))
+        )
+        return self.bounding_points
 
     def set_prev_snapshot(self, prev_snapshot):
         self.prev_snapshot = prev_snapshot
@@ -35,6 +49,11 @@ class CellSnapshot:
                 snapshot.confirm_mitosis()
         elif next_snapshots_count > 2:
             snapshot.confirm_mitosis()
+
+    def is_point_inside(self, point):
+        return cv.pointPolygonTest(
+            self.get_bounding_points(), point, False
+        ) >= 0
 
     def update_cell_mileage(self):
         if self.get_speed() is None:

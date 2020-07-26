@@ -8,14 +8,16 @@ from cell import Cell
 from cell_associator import CellAssociator
 from directory_reader import DirectoryReader
 from preprocessor import Preprocessor
-from cell_locator import CellLocator
+from watershed_cell_locator import WatershedCellLocator
+from ellipse_fitter import EllipseFitter
 from watershed import Watershed
 
 
 class Processor:
-    def __init__(self, file, mode, prev_snapshots):
+    def __init__(self, file, mode, segment_mode, prev_snapshots):
         self.file = file
         self.mode = mode
+        self.segment_mode = segment_mode
         self.prev_snapshots = prev_snapshots
         self.curr_snapshots = None
 
@@ -27,12 +29,19 @@ class Processor:
         preprocessed_image = Preprocessor(image, self.mode).preprocess()
 
         # Segment image
-        segmented_image = Watershed(preprocessed_image, self.mode).perform()
+        if self.segment_mode != 0:
+            segmented_image = Watershed(
+                preprocessed_image, self.mode
+            ).perform()
 
-        # Find segments
-        self.curr_snapshots = CellLocator(segmented_image).find()
+            # Find segments
+            self.curr_snapshots = WatershedCellLocator(
+                segmented_image
+            ).locate()
+        else:
+            self.curr_snapshots = EllipseFitter(preprocessed_image).fit()
 
-        # Associate
+            # Associate
         self.curr_snapshots = self.associate_cells()
 
         # Draw bounding box
@@ -40,6 +49,7 @@ class Processor:
             bottom_layer = preprocessed_image
         else:
             bottom_layer = image
+            # bottom_layer = preprocessed_image
 
         boxed_image = BoxesDrawer(self.curr_snapshots, bottom_layer).draw()
         return boxed_image, self.curr_snapshots
@@ -59,7 +69,7 @@ class Processor:
             if self.mode == 0:   # DIC
                 dthreshold = 5
             elif self.mode == 1:   # Fluo
-                threshold = 20
+                threshold = 30
             else:  # PhC
                 threshold = 10
 

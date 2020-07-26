@@ -5,7 +5,7 @@ import cell_db
 from matplotlib.widgets import Button
 
 from processor import Processor
-from cell_identifier import CellIdentifier
+from track_drawer import TrackDrawer
 from matplotlib import cm
 
 
@@ -15,16 +15,18 @@ class Application:
     PAUSED = 2
     STOPPED = 3
 
-    def __init__(self, sequence_files, mode):
+    def __init__(self, sequence_files, mode, segment_mode):
         # Files
         self.sequence_files = sequence_files
         self.file_count = len(sequence_files)
-        # Preprocessing Mode
+        # Preprocessing & segmentation Mode
         self.mode = mode
+        self.segment_mode = segment_mode
         # States
         self.time_point = 0
         self.state = Application.RUNNING
         # Plot objects
+        self.image_size = None
         self.figure = None
         self.plot_image = None
         self.subplot = None
@@ -44,6 +46,7 @@ class Application:
 
         # Process initial image
         image, self.curr_snapshots = self.process_current_image()
+        self.image_size = image.shape[1::-1]  # Remember the image size (w, h)
 
         # Setup plot_image and counts text
         self.plot_image = plt.imshow(image)
@@ -82,11 +85,9 @@ class Application:
         return plt.figure(num='Cell Tracking', figsize=figsize)
 
     def process_current_image(self):
-        # Note: Processing is slow: you can switch the comment to try
-        # return cv.imread(self.sequence_files[self.time_point], cv.IMREAD_GRAYSCALE)
-        # return plt.imread(self.sequence_files[self.time_point])
         return Processor(
-            self.sequence_files[self.time_point], self.mode, self.prev_snapshots
+            self.sequence_files[self.time_point], self.mode, self.segment_mode,
+            self.prev_snapshots
         ).process()
 
     def produce_counts_text(self):
@@ -157,15 +158,7 @@ class Application:
         self.draw_tracks()              # Draw tracks for current snapshots
 
     def draw_tracks(self):
-        cmap = cm.get_cmap('viridis')
-        for c in self.curr_snapshots:
-            if c.prev_snapshot is not None and c.cell is not None:
-                p = c.prev_snapshot
-                self.subplot.plot(
-                    [p.centroid[1], c.centroid[1]],
-                    [p.centroid[0], c.centroid[0]],
-                    linewidth=1, color=cmap(c.cell.id)
-                )
+        TrackDrawer(self.subplot, self.curr_snapshots, self.image_size).draw()
 
     def click_image(self, event):
         if not (event.inaxes == self.subplot):
@@ -174,11 +167,14 @@ class Application:
             return
 
         # print('xdata=%f, ydata=%f' % (event.xdata, event.ydata))
-        snapshot = self.identify_cell(event.ydata, event.xdata)
+        snapshot = self.identify_cell(event.xdata, event.ydata)
         self.update_cell_metrics(snapshot)
 
-    def identify_cell(self, y, x):
-        return CellIdentifier(self.curr_snapshots, y, x).identify()
+    def identify_cell(self, x, y):
+        for snapshot in self.curr_snapshots:
+            if snapshot.is_point_inside((x, y)):
+                return snapshot
+        return None
 
     def update_cell_metrics(self, snapshot):
         if snapshot is None:

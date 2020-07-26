@@ -22,8 +22,5 @@ class BoxesDrawer:
         else:
             color = (0, 255, 0)
 
-        return cv.rectangle(
-            image, tuple(snapshot.top_left[::-1]),
-            tuple(snapshot.bottom_right[::-1]),
-            color, 1
-        )
+        points = snapshot.get_bounding_points()
+        return cv.drawContours(image, [points], 0, color)

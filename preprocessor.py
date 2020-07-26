@@ -21,12 +21,14 @@ class Preprocessor:
         kernel = np.ones((5, 5), np.uint8)
         if self.mode == 1:  # Fluo:
             image = Thresholder(image, Preprocessor.FLUO_THRESHOLD).threshold()
-            image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel)
-            image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
         else:       # PhC
             image = ContrastStretcher(image).stretch()
             image = MinMaxFilter(image).filter()
             image = OtsuThresholder(image).threshold()
+
+        # Morphology
+        image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel)
+        image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
         return image
 
 
@@ -36,7 +38,8 @@ if __name__ == '__main__':
     # cv.imwrite('results/original.png', image)          # TODO: remove
 
     kernel = np.ones((5, 5), np.uint8)
-    if sys.argv[2] == 1:    # Fluo
+    mode = sys.argv[2]
+    if mode == 1:    # Fluo
         image = Thresholder(image, 129).threshold()
         cv.imwrite('results/thresholded.png', image)
         image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel)
