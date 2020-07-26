@@ -19,7 +19,6 @@ class Processor:
         self.file = file
         self.mode = mode
         self.segment_mode = segment_mode
-        self.image_size = None
         self.prev_snapshots = prev_snapshots
         self.curr_snapshots = None
 
@@ -32,6 +31,11 @@ class Processor:
             global_vars.image_size = image.shape[1::-1]
         if global_vars.image_diag is None:
             global_vars.image_diag = math.hypot(*global_vars.image_size)
+        if global_vars.image_area is None:
+            global_vars.image_area = (
+                global_vars.image_size[0]
+                * global_vars.image_size[1]
+            )
 
         # Preprocess image
         preprocessed_image = Preprocessor(image, self.mode).preprocess()
@@ -47,7 +51,9 @@ class Processor:
                 segmented_image
             ).locate()
         else:
-            self.curr_snapshots = EllipseFitter(preprocessed_image).fit()
+            self.curr_snapshots = EllipseFitter(
+                preprocessed_image, self.mode
+            ).fit()
 
         # Associate
         self.associate_cells()

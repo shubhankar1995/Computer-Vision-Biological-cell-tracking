@@ -9,3 +9,6 @@ def init():
 
     global image_diag
     image_diag = None
+
+    global image_area
+    image_area = None

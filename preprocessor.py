@@ -7,10 +7,14 @@ from contrast_stretcher import ContrastStretcher
 from min_max_filter import MinMaxFilter
 from otsu_thresholder import OtsuThresholder
 from thresholder import Thresholder
+from skimage.filters import frangi
+
+import random as rng
 
 
 class Preprocessor:
     FLUO_THRESHOLD = 129
+    DIC_THRESHOLD = 5
 
     def __init__(self, image, mode):
         self.image = image
@@ -19,6 +23,10 @@ class Preprocessor:
     def preprocess(self):
         image = self.image
         kernel = np.ones((5, 5), np.uint8)
+        if self.mode == 0:  # DIC
+            image = frangi(image, sigmas=[15])
+            image = ContrastStretcher(image).stretch()
+            image = Thresholder(image, Preprocessor.DIC_THRESHOLD).threshold()
         if self.mode == 1:  # Fluo:
             image = Thresholder(image, Preprocessor.FLUO_THRESHOLD).threshold()
         else:       # PhC
@@ -45,7 +53,7 @@ if __name__ == '__main__':
         image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel)
         image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
         cv.imwrite('results/morphed.png', image)
-    else:                   # PhC
+    elif mode == 2:                   # PhC
         image = ContrastStretcher(image).stretch()
         cv.imwrite('results/stretched.png', image)
         # image = cv.medianBlur(image, 5)
@@ -61,6 +69,50 @@ if __name__ == '__main__':
         image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel)
         image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
         cv.imwrite('results/morphed.png', image)
+    else:
+        # image = ContrastStretcher(image).stretch()
+        # image = cv.medianBlur(image, 5)
+        # cv.imwrite('results/blurred.png', image)
+        # image = cv.fastNlMeansDenoising(image)
+        # cv.imwrite('results/denoised.png', image)
+
+        image = frangi(image, sigmas=[15])
+        cv.imwrite('results/frangi.png', image)
+
+        image = ContrastStretcher(image).stretch()
+        cv.imwrite('results/stretched.png', image)
+
+        image = Thresholder(image, 5).threshold()
+        cv.imwrite('results/thresholded.png', image)
+
+        image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel, iterations=2)
+        cv.imwrite('results/morph_opened.png', image)
+        image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
+        cv.imwrite('results/morph_closed.png', image)
+
+        threshold = 100
+        canny_output = cv.Canny(image, threshold, threshold * 2)
+
+        # Find Contour
+        _, contours, _ = cv.findContours(
+            canny_output, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+        )
+
+        drawing = np.zeros(
+            (canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
+
+        ellipses = list()
+        for i, contour in enumerate(contours):
+            color = (rng.randint(0, 256), rng.randint(
+                0, 256), rng.randint(0, 256))
+            cv.drawContours(drawing, contours, i, color)
+            if contour.shape[0] > 5:
+                ellipse = cv.fitEllipse(contour)
+                ellipses.append(ellipse)
+                cv.ellipse(drawing, ellipse, color, 2)
+
+        cv.imwrite('results/ellipse.png', drawing)
+
         # image = cv.Canny(image, 100, 200)
         # cv.imwrite('results/edges.png', image)
 
