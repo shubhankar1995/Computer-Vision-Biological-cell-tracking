@@ -98,8 +98,11 @@ class Application:
         )
 
     def count_mitosis(self):
-        return sum(1 for snapshot in self.curr_snapshots
-                   if snapshot.is_mitosis)
+        if self.prev_snapshots is None:  # First frame
+            return 'N/A'
+
+        return sum(1 for snapshot in self.prev_snapshots
+                   if len(snapshot.next_snapshots) > 1)
 
     def init_button(self):
         button_ax = plt.axes([0.45, 0.01, 0.15, 0.075])  # Button position
@@ -119,7 +122,7 @@ class Application:
             self.button.label.set_text('Pause')
 
     def create_timer(self):
-        timer = self.figure.canvas.new_timer(interval=200)
+        timer = self.figure.canvas.new_timer(interval=500)
         timer.add_callback(self.next_step)
         return timer
 

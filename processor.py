@@ -41,8 +41,8 @@ class Processor:
         else:
             self.curr_snapshots = EllipseFitter(preprocessed_image).fit()
 
-            # Associate
-        self.curr_snapshots = self.associate_cells()
+        # Associate
+        self.associate_cells()
 
         # Draw bounding box
         if self.mode == 1:   # Fluo

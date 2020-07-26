@@ -8,7 +8,6 @@ class TrackDrawer:
         self.image_size = image_size
 
     def draw(self):
-        return
         for c in self.snapshots:
             if c.prev_snapshot is not None and c.cell is not None:
                 p = c.prev_snapshot

@@ -9,6 +9,7 @@ from scipy.optimize import linear_sum_assignment
 
 
 class CellAssociator:
+
     def __init__(self, curr_snapshots, prev_snapshots, threshold):
         self.curr_snapshots = curr_snapshots
         self.prev_snapshots = prev_snapshots
@@ -40,8 +41,6 @@ class CellAssociator:
         for snapshot in self.prev_snapshots:
             if len(snapshot.next_snapshots) == 0:
                 cell_db.cells[snapshot.cell.id] = None
-
-        return self.curr_snapshots
 
     def perform_linear_sum_assignment(self):
         # Build list of centroids
