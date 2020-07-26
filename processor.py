@@ -32,7 +32,6 @@ class Processor:
             global_vars.image_size = image.shape[1::-1]
         if global_vars.image_diag is None:
             global_vars.image_diag = math.hypot(*global_vars.image_size)
-            print(global_vars.image_diag)
 
         # Preprocess image
         preprocessed_image = Preprocessor(image, self.mode).preprocess()
