@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import sys
 import time
+import matplotlib.pyplot as plt
 
 from contrast_stretcher import ContrastStretcher
 from min_max_filter import MinMaxFilter
@@ -44,8 +45,12 @@ if __name__ == '__main__':
     image = cv.imread(sys.argv[1], cv.IMREAD_GRAYSCALE)
     # cv.imwrite('results/original.png', image)          # TODO: remove
 
+    # plt.hist(image.ravel(), 256, [0, 256])
+    # plt.show()
+    # sys.exit()
+
     kernel = np.ones((5, 5), np.uint8)
-    mode = sys.argv[2]
+    mode = int(sys.argv[2])
     if mode == 1:    # Fluo
         image = Thresholder(image, 129).threshold()
         cv.imwrite('results/thresholded.png', image)
