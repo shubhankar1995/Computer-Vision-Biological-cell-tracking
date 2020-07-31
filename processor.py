@@ -1,37 +1,97 @@
 import cv2 as cv
+import math
 import sys
 import time
+import global_vars
 
 from boxes_drawer import BoxesDrawer
+from cell import Cell
+from cell_associator import CellAssociator
 from directory_reader import DirectoryReader
 from preprocessor import Preprocessor
-from segment_locator import SegmentLocator
+from watershed_cell_locator import WatershedCellLocator
+from ellipse_fitter import EllipseFitter
 from watershed import Watershed
 
 
 class Processor:
-    def __init__(self, file, mode):
+    def __init__(self, file, mode, segment_mode, prev_snapshots):
         self.file = file
         self.mode = mode
+        self.segment_mode = segment_mode
+        self.prev_snapshots = prev_snapshots
+        self.curr_snapshots = None
 
     def process(self):
         # Read image
         image = cv.imread(self.file, cv.IMREAD_GRAYSCALE)
 
+        # Save global information
+        if global_vars.image_size is None:
+            global_vars.image_size = image.shape[1::-1]
+        if global_vars.image_diag is None:
+            global_vars.image_diag = math.hypot(*global_vars.image_size)
+        if global_vars.image_area is None:
+            global_vars.image_area = (
+                global_vars.image_size[0]
+                * global_vars.image_size[1]
+            )
+
         # Preprocess image
         preprocessed_image = Preprocessor(image, self.mode).preprocess()
 
         # Segment image
-        segmented_image = Watershed(preprocessed_image, self.mode).perform()
+        if self.segment_mode != 0:
+            segmented_image = Watershed(
+                preprocessed_image, self.mode
+            ).perform()
 
-        # Find segments
-        segments = SegmentLocator(segmented_image).find()
+            # Find segments
+            self.curr_snapshots = WatershedCellLocator(
+                segmented_image
+            ).locate()
+        else:
+            self.curr_snapshots = EllipseFitter(
+                preprocessed_image, self.mode
+            ).fit()
+
+        # Associate
+        self.associate_cells()
 
         # Draw bounding box
         if self.mode == 1:   # Fluo
-            return BoxesDrawer(segments, preprocessed_image).draw(), segments
+            bottom_layer = preprocessed_image
         else:
-            return BoxesDrawer(segments, image).draw(), segments
+            bottom_layer = image
+            # bottom_layer = preprocessed_image
+
+        boxed_image = BoxesDrawer(self.curr_snapshots, bottom_layer).draw()
+        return boxed_image, self.curr_snapshots
+
+    def associate_cells(self):
+        if self.prev_snapshots is None:  # Initialize (Frame 0)
+            for snapshot in self.curr_snapshots:
+                new_id = len(global_vars.cells)  # ID of new cell
+                cell = Cell(new_id, snapshot.centroid)  # New Cell
+                global_vars.cells.append(cell)              # Add to DB
+
+                # Associate snapshot with the new cell
+                snapshot.associate(cell)
+            return self.curr_snapshots
+        else:
+            # Association threshold
+            if self.mode == 0:   # DIC
+                threshold = 0.1
+            elif self.mode == 1:   # Fluo
+                threshold = 0.025
+            else:  # PhC
+                threshold = 0.01
+
+            # Association happens here
+            associator = CellAssociator(
+                self.curr_snapshots, self.prev_snapshots, threshold
+            )
+            return associator.associate()
 
 
 if __name__ == '__main__':

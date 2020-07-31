@@ -3,8 +3,8 @@ from contrast_stretcher import ContrastStretcher
 
 
 class BoxesDrawer:
-    def __init__(self, segments, image):
-        self.segments = segments
+    def __init__(self, snapshots, image):
+        self.snapshots = snapshots
         self.image = image
 
     def draw(self):
@@ -12,13 +12,15 @@ class BoxesDrawer:
         color_image = cv.cvtColor(self.image, cv.COLOR_GRAY2RGB)
 
         # Draw all
-        for segment in self.segments:
-            color_image = BoxesDrawer.draw_segment(segment, color_image)
+        for snapshot in self.snapshots:
+            color_image = BoxesDrawer.draw_box(snapshot, color_image)
         return color_image
 
-    def draw_segment(segment, image):
-        top_left, bottom_right, _ = segment
-        return cv.rectangle(
-            image, tuple(top_left[::-1]), tuple(bottom_right[::-1]),
-            (255, 0, 0), 2
-        )
+    def draw_box(snapshot, image):
+        if snapshot.is_mitosis:
+            color = (255, 0, 0)
+        else:
+            color = (0, 255, 0)
+
+        points = snapshot.get_bounding_points()
+        return cv.drawContours(image, [points], 0, color)
