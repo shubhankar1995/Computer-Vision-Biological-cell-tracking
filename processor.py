@@ -15,10 +15,9 @@ from watershed import Watershed
 
 
 class Processor:
-    def __init__(self, file, mode, segment_mode, prev_snapshots):
+    def __init__(self, file, mode, prev_snapshots):
         self.file = file
         self.mode = mode
-        self.segment_mode = segment_mode
         self.prev_snapshots = prev_snapshots
         self.curr_snapshots = None
 
@@ -41,7 +40,7 @@ class Processor:
         preprocessed_image = Preprocessor(image, self.mode).preprocess()
 
         # Segment image
-        if self.segment_mode != 0:
+        if global_vars.is_watershed:
             segmented_image = Watershed(
                 preprocessed_image, self.mode
             ).perform()

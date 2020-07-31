@@ -15,13 +15,12 @@ class Application:
     PAUSED = 2
     STOPPED = 3
 
-    def __init__(self, sequence_files, mode, segment_mode):
+    def __init__(self, sequence_files, mode):
         # Files
         self.sequence_files = sequence_files
         self.file_count = len(sequence_files)
-        # Preprocessing & segmentation Mode
+        # Preprocessing Mode
         self.mode = mode
-        self.segment_mode = segment_mode
         # States
         self.time_point = 0
         self.state = Application.RUNNING
@@ -84,7 +83,7 @@ class Application:
 
     def process_current_image(self):
         return Processor(
-            self.sequence_files[self.time_point], self.mode, self.segment_mode,
+            self.sequence_files[self.time_point], self.mode,
             self.prev_snapshots
         ).process()
 

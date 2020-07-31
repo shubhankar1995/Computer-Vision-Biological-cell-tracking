@@ -13,5 +13,8 @@ def init():
     global image_area
     image_area = None
 
+    global is_watershed
+    is_watershed = False
+
     global show_preprocessed
     show_preprocessed = False
