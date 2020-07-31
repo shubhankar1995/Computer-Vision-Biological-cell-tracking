@@ -95,26 +95,3 @@ class CellAssociator:
             global_vars.cells.append(new_cell)
             # Associate
             snapshot.associate(new_cell)
-
-
-if __name__ == '__main__':
-    pass
-    # sequence_files = DirectoryReader(sys.argv[1]).get_sequence_files()
-    # mode = int(sys.argv[2])
-
-    # Get segments & centroids
-    # _, prev_segments = Processor(sequence_files[0], mode).process()
-    # _, next_segments = Processor(sequence_files[1], mode).process()
-    # prev_centroids = np.array([x[2] for x in prev_segments])
-    # next_centroids = np.array([x[2] for x in next_segments])
-
-    # Calc distance matrix
-    # distance_matrix = cdist(next_centroids, prev_centroids)
-    # print(next_centroids, len(next_centroids))
-    # print(prev_centroids, len(prev_centroids))
-    # print(distance_matrix, distance_matrix.shape)
-
-    # # Assignment
-    # row_idxs, col_idxs = linear_sum_assignment(distance_matrix)
-    # print(row_idxs, len(row_idxs))
-    # print(col_idxs, len(col_idxs))
