@@ -59,11 +59,10 @@ class Processor:
         self.associate_cells()
 
         # Draw bounding box
-        if self.mode == 1:   # Fluo
+        if global_vars.show_preprocessed:   # Fluo
             bottom_layer = preprocessed_image
         else:
             bottom_layer = image
-            # bottom_layer = preprocessed_image
 
         boxed_image = BoxesDrawer(self.curr_snapshots, bottom_layer).draw()
         return boxed_image, self.curr_snapshots

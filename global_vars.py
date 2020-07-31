@@ -12,3 +12,6 @@ def init():
 
     global image_area
     image_area = None
+
+    global show_preprocessed
+    show_preprocessed = False

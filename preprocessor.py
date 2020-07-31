@@ -30,7 +30,6 @@ class Preprocessor:
         if self.mode == 1:  # Fluo:
             image = Thresholder(image, Preprocessor.FLUO_THRESHOLD).threshold()
         else:       # PhC
-            image = ContrastStretcher(image).stretch()
             image = MinMaxFilter(image).filter()
             image = OtsuThresholder(image).threshold()
 

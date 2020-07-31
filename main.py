@@ -29,5 +29,9 @@ if __name__ == '__main__':
     # Init global vars
     global_vars.init()
 
+    # Show pre-processed flag
+    if len(sys.argv) >= 4 and int(sys.argv[3]) == 1:
+        global_vars.show_preprocessed = True
+
     # Run App
     Application(sequence_files, int(sys.argv[2]), segment_mode).run()
