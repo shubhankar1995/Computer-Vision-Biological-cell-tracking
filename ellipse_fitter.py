@@ -45,7 +45,6 @@ class EllipseFitter:
         ratio = (width * height) / global_vars.image_area
         return 0.01 < ratio and ratio < 0.2
 
-
         # Used for experiments
 if __name__ == '__main__':
     image = cv.imread(sys.argv[1], cv.IMREAD_GRAYSCALE)

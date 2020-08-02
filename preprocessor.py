@@ -43,7 +43,7 @@ class Preprocessor:
 # Used for experiments
 if __name__ == '__main__':
     image = cv.imread(sys.argv[1], cv.IMREAD_GRAYSCALE)
-    # cv.imwrite('results/original.png', image)          # TODO: remove
+    cv.imwrite('results/original.png', image)          # TODO: remove
 
     # plt.hist(image.ravel(), 256, [0, 256])
     # plt.show()
@@ -58,14 +58,14 @@ if __name__ == '__main__':
         image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
         cv.imwrite('results/morphed.png', image)
     elif mode == 2:                   # PhC
-        image = ContrastStretcher(image).stretch()
-        cv.imwrite('results/stretched.png', image)
+        # image = ContrastStretcher(image).stretch()
+        # cv.imwrite('results/stretched.png', image)
         # image = cv.medianBlur(image, 5)
         # cv.imwrite('results/blurred.png', image)
         # image = cv.fastNlMeansDenoising(image)
         # cv.imwrite('results/denoised.png', image)
-        image = MinMaxFilter(image).filter()
-        cv.imwrite('results/filtered.png', image)
+        # image = MinMaxFilter(image).filter()
+        # cv.imwrite('results/filtered.png', image)
         # image = ContrastStretcher(image).stretch()
         # cv.imwrite('results/post-stretched.png', image)
         image = OtsuThresholder(image).threshold()

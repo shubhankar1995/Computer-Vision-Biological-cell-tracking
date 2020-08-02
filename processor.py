@@ -90,3 +90,15 @@ class Processor:
                 self.curr_snapshots, self.prev_snapshots, threshold
             )
             return associator.associate()
+
+
+if __name__ == '__main__':
+    image = cv.imread(sys.argv[1], cv.IMREAD_GRAYSCALE)
+    cv.imwrite('results/original.png', image)          # TODO: remove
+
+    global_vars.init()
+    global_vars.is_watershed = False
+
+    processor = Processor(sys.argv[1], 0, None)
+    image, _ = processor.process()
+    cv.imwrite('results/processed2.png', image)          # TODO: remove
