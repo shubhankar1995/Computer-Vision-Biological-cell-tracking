@@ -19,7 +19,7 @@ class CellAssociator:
 
     def associate(self):
         subject_ids, object_ids = self.perform_linear_sum_assignment()
-        # Associate based on linear sum assignment (Primary)
+        # Assign based on linear sum assignment (Primary)
         pri_associated_ids = self.assign(subject_ids, object_ids)
 
         # Mitosis or left-outs (Secondary)
@@ -32,11 +32,23 @@ class CellAssociator:
             pri_unassociated_ids, sec_object_ids
         )
 
-        # Initiate new cells for the unassigned
+        # Associate assigned cells and record mitosis cells
+        mitosis_ids = list()
+        for i in (pri_associated_ids.union(sec_associated_ids)):
+            curr_snapshot = self.curr_snapshots[i]
+            prev_snapshot = curr_snapshot.prev_snapshot
+
+            if len(prev_snapshot.next_snapshots) == 1:  # Old cell
+                curr_snapshot.associate(prev_snapshot.cell)
+                curr_snapshot.update_cell_mileage()  # Update mileage
+            else:   # Mitosis
+                mitosis_ids.append(i)
+
+        # Initiate new cells for the mitosis + unassigned
         unassociated_ids = sorted(list(
             set(pri_unassociated_ids) - sec_associated_ids
         ))
-        self.initiate_new_cells(unassociated_ids)
+        self.initiate_new_cells(mitosis_ids + unassociated_ids)
 
         # Delete childless cells in prev
         for snapshot in self.prev_snapshots:
@@ -64,22 +76,11 @@ class CellAssociator:
             if self.distance_matrix[curr_id, prev_id] > self.threshold:
                 continue  # Threshold
 
+            # Assignment
             curr_snapshot = self.curr_snapshots[curr_id]
             prev_snapshot = self.prev_snapshots[prev_id]
             curr_snapshot.set_prev_snapshot(prev_snapshot)
             prev_snapshot.add_next_snapshot(curr_snapshot)
-
-            # Associate cells
-            if len(prev_snapshot.next_snapshots) == 1:  # Old cell
-                curr_snapshot.associate(prev_snapshot.cell)
-            else:   # Mitosis
-                new_id = len(global_vars.cells)
-                new_cell = prev_snapshot.cell.copy(new_id)
-                global_vars.cells.append(new_cell)
-                curr_snapshot.associate(new_cell)
-
-            # Update cell mileage (total dist)
-            curr_snapshot.update_cell_mileage()
 
             associated_ids.add(curr_id)
 
