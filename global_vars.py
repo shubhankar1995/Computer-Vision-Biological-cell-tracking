@@ -18,3 +18,6 @@ def init():
 
     global show_preprocessed
     show_preprocessed = False
+
+    global ratios
+    ratios = []

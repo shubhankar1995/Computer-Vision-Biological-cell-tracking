@@ -158,6 +158,7 @@ class Application:
         self.draw_tracks()              # Draw tracks for current snapshots
 
     def draw_tracks(self):
+        return
         TrackDrawer(self.subplot, self.curr_snapshots).draw()
 
     def click_image(self, event):

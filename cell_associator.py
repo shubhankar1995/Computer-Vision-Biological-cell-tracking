@@ -38,10 +38,24 @@ class CellAssociator:
         ))
         self.initiate_new_cells(unassociated_ids)
 
+        parentless_cell_count = len(unassociated_ids)
+        global_vars.ratios.append(
+            parentless_cell_count / len(self.curr_snapshots)
+        )
+
         # Delete childless cells in prev
+        childless_cell_count = 0
         for snapshot in self.prev_snapshots:
             if len(snapshot.next_snapshots) == 0:
+                childless_cell_count += 1
                 global_vars.cells[snapshot.cell.id] = None
+
+        global_vars.ratios.append(
+            childless_cell_count / len(self.prev_snapshots)
+        )
+
+        # print(global_vars.ratios)
+        print(np.average(np.array(global_vars.ratios)))
 
     def perform_linear_sum_assignment(self):
         # Build list of centroids
