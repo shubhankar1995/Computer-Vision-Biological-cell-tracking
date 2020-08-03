@@ -46,12 +46,7 @@ class Processor:
         self.associate_cells()
 
         # Draw bounding box
-        if global_vars.show_preprocessed:   # Fluo
-            bottom_layer = preprocessed_image
-        else:
-            bottom_layer = image
-
-        boxed_image = BoxesDrawer(self.curr_snapshots, bottom_layer).draw()
+        boxed_image = BoxesDrawer(self.curr_snapshots, image).draw()
         return boxed_image, self.curr_snapshots
 
     def associate_cells(self):
