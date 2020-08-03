@@ -25,6 +25,7 @@ python3 main.py path/to/Fluo/sequence 1
 ```
 python3 main.py path/to/PhC/sequence 2
 ```
+![](phc.gif)
 
 During the run of the application, you can pause the animation at any time by pressing the 'Pause' button, and continue the animation by pressing the 'Continue' button.
 After all images in the sequence have been processed and displayed, you can ...
