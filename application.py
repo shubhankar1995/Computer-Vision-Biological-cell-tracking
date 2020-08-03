@@ -1,12 +1,10 @@
 import cv2 as cv
-import sys
 import matplotlib.pyplot as plt
 import global_vars
 from matplotlib.widgets import Button
 
 from processor import Processor
 from track_drawer import TrackDrawer
-from matplotlib import cm
 
 
 class Application:
@@ -166,7 +164,6 @@ class Application:
         if event.ydata == None or event.xdata == None:
             return
 
-        # print('xdata=%f, ydata=%f' % (event.xdata, event.ydata))
         snapshot = self.identify_cell(event.xdata, event.ydata)
         self.update_cell_metrics(snapshot)
 

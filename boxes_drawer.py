@@ -1,5 +1,4 @@
 import cv2 as cv
-from contrast_stretcher import ContrastStretcher
 
 
 class BoxesDrawer:
