@@ -9,7 +9,10 @@ of images.
 The mode parameter chooses the preprocessing and segmentation methods to be ...
 used, which depends on the imageset.
 
-Modes: 0 -> DIC-C2DH-HeLa, 1 -> Fluo-N2DL-HeLa, 2 -> PhC-C2DL-PSC
+Modes: 
+* 0: DIC-C2DH-HeLa
+* 1: Fluo-N2DL-HeLa
+* 2: PhC-C2DL-PSC
 
 Examples:
 ```
