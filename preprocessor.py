@@ -64,8 +64,8 @@ if __name__ == '__main__':
         # cv.imwrite('results/blurred.png', image)
         # image = cv.fastNlMeansDenoising(image)
         # cv.imwrite('results/denoised.png', image)
-        # image = MinMaxFilter(image).filter()
-        # cv.imwrite('results/filtered.png', image)
+        image = MinMaxFilter(image).filter()
+        cv.imwrite('results/filtered.png', image)
         # image = ContrastStretcher(image).stretch()
         # cv.imwrite('results/post-stretched.png', image)
         image = OtsuThresholder(image).threshold()
@@ -90,9 +90,8 @@ if __name__ == '__main__':
         cv.imwrite('results/thresholded.png', image)
 
         image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel, iterations=2)
-        cv.imwrite('results/morph_opened.png', image)
         image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
-        cv.imwrite('results/morph_closed.png', image)
+        cv.imwrite('results/morphed.png', image)
 
         threshold = 100
         canny_output = cv.Canny(image, threshold, threshold * 2)

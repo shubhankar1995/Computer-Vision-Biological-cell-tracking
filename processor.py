@@ -94,11 +94,13 @@ class Processor:
 
 if __name__ == '__main__':
     image = cv.imread(sys.argv[1], cv.IMREAD_GRAYSCALE)
-    cv.imwrite('results/original.png', image)          # TODO: remove
+    # cv.imwrite('results/original.png', image)          # TODO: remove
 
     global_vars.init()
     global_vars.is_watershed = False
 
-    processor = Processor(sys.argv[1], 0, None)
+    mode = int(sys.argv[2])
+
+    processor = Processor(sys.argv[1], mode, None)
     image, _ = processor.process()
-    cv.imwrite('results/processed2.png', image)          # TODO: remove
+    cv.imwrite('results/processed.png', image)          # TODO: remove
