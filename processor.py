@@ -1,7 +1,6 @@
 import cv2 as cv
 import math
 import sys
-import time
 import global_vars
 
 from boxes_drawer import BoxesDrawer

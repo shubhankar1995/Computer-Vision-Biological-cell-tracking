@@ -1,6 +1,11 @@
 # Computer-Vision-Project
 ## Requirements
-The application is intended to be run using Python 3.7+.
+* Python 3.7+
+* numpy 1.19.1
+* scipy 1.5.2
+* opencv-python 3.4.2.17
+* scikit-image 0.17.2
+
 
 ## Execution Instructions
 Run main.py to launch the application.
