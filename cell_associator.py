@@ -1,10 +1,8 @@
 import sys
 import numpy as np
-import math
 import global_vars
 
 from cell import Cell
-from directory_reader import DirectoryReader
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 

@@ -9,9 +9,7 @@ from cell import Cell
 from cell_associator import CellAssociator
 from directory_reader import DirectoryReader
 from preprocessor import Preprocessor
-from watershed_cell_locator import WatershedCellLocator
 from ellipse_fitter import EllipseFitter
-from watershed import Watershed
 
 
 class Processor:
@@ -40,30 +38,15 @@ class Processor:
         preprocessed_image = Preprocessor(image, self.mode).preprocess()
 
         # Segment image
-        if global_vars.is_watershed:
-            segmented_image = Watershed(
-                preprocessed_image, self.mode
-            ).perform()
-
-            # Find segments
-            self.curr_snapshots = WatershedCellLocator(
-                segmented_image
-            ).locate()
-        else:
-            self.curr_snapshots = EllipseFitter(
-                preprocessed_image, self.mode
-            ).fit()
+        self.curr_snapshots = EllipseFitter(
+            preprocessed_image, self.mode
+        ).fit()
 
         # Associate
         self.associate_cells()
 
         # Draw bounding box
-        if global_vars.show_preprocessed:   # Fluo
-            bottom_layer = preprocessed_image
-        else:
-            bottom_layer = image
-
-        boxed_image = BoxesDrawer(self.curr_snapshots, bottom_layer).draw()
+        boxed_image = BoxesDrawer(self.curr_snapshots, image).draw()
         return boxed_image, self.curr_snapshots
 
     def associate_cells(self):
@@ -90,15 +73,3 @@ class Processor:
                 self.curr_snapshots, self.prev_snapshots, threshold
             )
             return associator.associate()
-
-
-if __name__ == '__main__':
-    image = cv.imread(sys.argv[1], cv.IMREAD_GRAYSCALE)
-    cv.imwrite('results/original.png', image)          # TODO: remove
-
-    global_vars.init()
-    global_vars.is_watershed = False
-
-    processor = Processor(sys.argv[1], 0, None)
-    image, _ = processor.process()
-    cv.imwrite('results/processed2.png', image)          # TODO: remove

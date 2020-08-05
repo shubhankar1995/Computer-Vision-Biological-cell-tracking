@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 
 
-class MinMaxFilter:
+class TopHatFilter:
     def __init__(self, image, neighborhood_size=25, morph=cv.MORPH_OPEN):
         self.image = image
         self.neighborhood_size = neighborhood_size
