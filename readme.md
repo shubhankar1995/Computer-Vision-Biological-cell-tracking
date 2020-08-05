@@ -1,7 +1,8 @@
-# Requirements
+# Computer-Vision-Project
+## Requirements
 The application is intended to be run using Python 3.7+.
 
-# Execution Instructions
+## Execution Instructions
 Run main.py to launch the application.
 The parameters of the application are sequence_directory and mode.
 sequence_directory is the relative path to directory containing the sequence of images.
