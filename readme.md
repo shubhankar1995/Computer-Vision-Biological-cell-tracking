@@ -23,13 +23,13 @@ python3 main.py path/to/sequence mode
 ```
 Examples:
 ```
-python3 main.py path/to/DIC/sequence 0 
+python3 main.py images/DIC/Sequence1 0 
 ```
 ```
-python3 main.py path/to/Fluo/sequence 1 
+python3 main.py images/Fluo/Sequence3 1 
 ```
 ```
-python3 main.py path/to/PhC/sequence 2
+python3 main.py images/PhC/Sequence4 2
 ```
 ![](phc.gif)
 
