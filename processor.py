@@ -45,7 +45,7 @@ class Processor:
         self.associate_cells()
 
         # Draw bounding box
-        if mode == 1:
+        if self.mode == 1:
             bottom_layer = preprocessed_image
         else:
             bottom_layer = image
