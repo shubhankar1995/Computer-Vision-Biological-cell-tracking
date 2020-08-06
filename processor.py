@@ -45,7 +45,11 @@ class Processor:
         self.associate_cells()
 
         # Draw bounding box
-        boxed_image = BoxesDrawer(self.curr_snapshots, image).draw()
+        if mode == 1:
+            bottom_layer = preprocessed_image
+        else:
+            bottom_layer = image
+        boxed_image = BoxesDrawer(self.curr_snapshots, bottom_layer).draw()
         return boxed_image, self.curr_snapshots
 
     def associate_cells(self):
