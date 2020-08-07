@@ -5,6 +5,7 @@
 * scipy 1.5.2
 * opencv-python 3.4.2.17
 * scikit-image 0.17.2
+* matplotlib 3.3.0
 
 
 ## Execution Instructions
