@@ -32,11 +32,12 @@ python3 main.py images/Fluo/Sequence3 1
 ```
 python3 main.py images/PhC/Sequence4 2
 ```
-![](phc.gif)
 
 During the run of the application, you can pause the animation at any time by pressing the 'Pause' button, and continue the animation by pressing the 'Continue' button.
 
 After all images in the sequence have been processed and displayed, you can reset and start again from the beginning by pressing the 'Rerun' button.
+
+The segmented cells have green box drawn on their boundaries, with cells having mitosis have red box drawn on their boundaries. 
 
 You can left-click on any segmented cell in the image at any time to show the metrics of that particular cell at the time it is clicked.
 
